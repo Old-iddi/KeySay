@@ -14,7 +14,7 @@ Archive and Export locally (so it is signed locally)
 
 Add KeySay.app to the Universal Access (Apple menu > System Settings, click Privacy & Security, then click Accessibility on the right. (You may need to scroll down.) Click the Add button at the bottom of the list of apps and choose KeySay. You can turn permission on or off for any app in the list.
 
-Then doublick click the app. Not that there will no windows and it won't appear on dock.
+Then doublick click the app.
 
 To quit app - use termial command
 

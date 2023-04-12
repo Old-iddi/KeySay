@@ -19,9 +19,6 @@ extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 @end
 
 @implementation AppDelegate
-//{
-//    BCDClockExtra *cpuExtra;
-//}
 
 void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
     AppDelegate *slf = (__bridge AppDelegate*)observer;
@@ -30,11 +27,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 - (void)announce {
-    if( self.speechSynth == nil ) {
-        //   NSArray *voices = [NSSpeechSynthesizer availableVoices];
-        self.speechSynth = [[NSSpeechSynthesizer alloc] initWithVoice:@"com.apple.speech.synthesis.voice.milena.premium"];
-        self.speechSynth.volume = 0.1;
-    }
     if( self.speechSynth != nil ) {
         TISInputSourceRef inputSource = TISCopyCurrentKeyboardInputSource();
         NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID);
@@ -48,11 +40,14 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    NSURL *latSoundURL = [[NSBundle mainBundle] URLForResource:@"lat" withExtension:@"riff"];
-    NSURL *rusSoundURL = [[NSBundle mainBundle] URLForResource:@"rus" withExtension:@"riff"];
+    NSURL *latSoundURL = [[NSBundle mainBundle] URLForResource:@"keyb_click" withExtension:@"riff"];
+    NSURL *rusSoundURL = [[NSBundle mainBundle] URLForResource:@"ios_click" withExtension:@"riff"];
     
     self.latSound = [[NSSound alloc] initWithContentsOfURL:latSoundURL byReference:NO];
     self.rusSound = [[NSSound alloc] initWithContentsOfURL:rusSoundURL byReference:NO];
+
+    self.speechSynth = [[NSSpeechSynthesizer alloc] initWithVoice:@"com.apple.speech.synthesis.voice.milena.premium"];
+    self.speechSynth.volume = 0.1;
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
                                     (__bridge void*)self, theKeyboardChanged,
@@ -83,10 +78,16 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
             self.lastAnnounce = currentTime;
         }
     }];
+    
+    [self.window setOpaque:NO];
+    [self.window setBackgroundColor: [NSColor clearColor]];
+    [self.window setLevel:kCGMaximumWindowLevel];
+
+    [self.window performSelector:@selector(close) withObject:nil afterDelay:5];
+    [self.speechSynth startSpeakingString:@"Key Say"];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    [self.speechSynth startSpeakingString:@"Bye..."];
 }
 
 

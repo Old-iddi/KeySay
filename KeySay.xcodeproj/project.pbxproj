@@ -7,16 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6001759429E6731C00791879 /* 1024.png in Resources */ = {isa = PBXBuildFile; fileRef = 6001759329E6731C00791879 /* 1024.png */; };
 		6006A8E629E5275000697542 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 6006A8E529E5275000697542 /* README.md */; };
 		60D8EFB91E0FF12B00C7036A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D8EFB81E0FF12B00C7036A /* AppDelegate.m */; };
 		60D8EFBC1E0FF12B00C7036A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D8EFBB1E0FF12B00C7036A /* main.m */; };
 		60D8EFBE1E0FF12B00C7036A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 60D8EFBD1E0FF12B00C7036A /* Assets.xcassets */; };
 		60D8EFC11E0FF12B00C7036A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 60D8EFBF1E0FF12B00C7036A /* MainMenu.xib */; };
-		60DF0CA029E5234C00096C39 /* lat.riff in Resources */ = {isa = PBXBuildFile; fileRef = 60DF0C9E29E5234C00096C39 /* lat.riff */; };
-		60DF0CA129E5234C00096C39 /* rus.riff in Resources */ = {isa = PBXBuildFile; fileRef = 60DF0C9F29E5234C00096C39 /* rus.riff */; };
+		60DF0CA029E5234C00096C39 /* keyb_click.riff in Resources */ = {isa = PBXBuildFile; fileRef = 60DF0C9E29E5234C00096C39 /* keyb_click.riff */; };
+		60DF0CA129E5234C00096C39 /* ios_click.riff in Resources */ = {isa = PBXBuildFile; fileRef = 60DF0C9F29E5234C00096C39 /* ios_click.riff */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6001759329E6731C00791879 /* 1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1024.png; sourceTree = "<group>"; };
 		6006A8E529E5275000697542 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		60D8EFB41E0FF12B00C7036A /* KeySay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeySay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		60D8EFB71E0FF12B00C7036A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -25,8 +27,8 @@
 		60D8EFBD1E0FF12B00C7036A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		60D8EFC01E0FF12B00C7036A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		60D8EFC21E0FF12B00C7036A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		60DF0C9E29E5234C00096C39 /* lat.riff */ = {isa = PBXFileReference; lastKnownFileType = file; path = lat.riff; sourceTree = "<group>"; };
-		60DF0C9F29E5234C00096C39 /* rus.riff */ = {isa = PBXFileReference; lastKnownFileType = file; path = rus.riff; sourceTree = "<group>"; };
+		60DF0C9E29E5234C00096C39 /* keyb_click.riff */ = {isa = PBXFileReference; lastKnownFileType = file; path = keyb_click.riff; sourceTree = "<group>"; };
+		60DF0C9F29E5234C00096C39 /* ios_click.riff */ = {isa = PBXFileReference; lastKnownFileType = file; path = ios_click.riff; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,8 +66,9 @@
 				60D8EFBD1E0FF12B00C7036A /* Assets.xcassets */,
 				60D8EFBF1E0FF12B00C7036A /* MainMenu.xib */,
 				60D8EFC21E0FF12B00C7036A /* Info.plist */,
-				60DF0C9E29E5234C00096C39 /* lat.riff */,
-				60DF0C9F29E5234C00096C39 /* rus.riff */,
+				60DF0C9E29E5234C00096C39 /* keyb_click.riff */,
+				60DF0C9F29E5234C00096C39 /* ios_click.riff */,
+				6001759329E6731C00791879 /* 1024.png */,
 				6006A8E529E5275000697542 /* README.md */,
 				60D8EFBA1E0FF12B00C7036A /* Supporting Files */,
 			);
@@ -138,11 +141,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6001759429E6731C00791879 /* 1024.png in Resources */,
 				60D8EFBE1E0FF12B00C7036A /* Assets.xcassets in Resources */,
-				60DF0CA029E5234C00096C39 /* lat.riff in Resources */,
+				60DF0CA029E5234C00096C39 /* keyb_click.riff in Resources */,
 				6006A8E629E5275000697542 /* README.md in Resources */,
 				60D8EFC11E0FF12B00C7036A /* MainMenu.xib in Resources */,
-				60DF0CA129E5234C00096C39 /* rus.riff in Resources */,
+				60DF0CA129E5234C00096C39 /* ios_click.riff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,11 +287,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 4;
 				INFOPLIST_FILE = KeySay/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KeySay;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.dennisionov.KeySay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -297,11 +304,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 4;
 				INFOPLIST_FILE = KeySay/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KeySay;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ru.dennisionov.KeySay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
