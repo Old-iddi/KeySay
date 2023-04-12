@@ -1,5 +1,7 @@
 # KeySay
 
+<img src="KeySay/1024.png" width="256" height="256" alt="KeySay icon">
+
 1. This app announces change of keyboard layout with Text To Speech and System Beep
 2. Also it reminds current keyboard layout after 10 seconds without kepresses
 2. And also it play different keyclick sound for different keyboard layouts
