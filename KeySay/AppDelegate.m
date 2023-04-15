@@ -82,8 +82,9 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self.window setOpaque:NO];
     [self.window setBackgroundColor: [NSColor clearColor]];
     [self.window setLevel:kCGMaximumWindowLevel];
+    [self.window makeKeyAndOrderFront:self];
 
-    [self.window performSelector:@selector(close) withObject:nil afterDelay:5];
+    [self.window performSelector:@selector(close) withObject:nil afterDelay:3];
     [self.speechSynth startSpeakingString:@"Key Say"];
 }
 

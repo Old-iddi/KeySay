@@ -679,9 +679,9 @@
                     </menu>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="140" y="154"/>
+            <point key="canvasLocation" x="131" y="293"/>
         </menu>
-        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" hasShadow="NO" releasedWhenClosed="NO" frameAutosaveName="" animationBehavior="default" id="Od7-JD-BXS" customClass="NSPanel">
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="Od7-JD-BXS" customClass="NSPanel">
             <windowStyleMask key="styleMask" utility="YES" fullSizeContentView="YES"/>
             <rect key="contentRect" x="392" y="427" width="512" height="512"/>
             <rect key="screenRect" x="0.0" y="0.0" width="3360" height="1865"/>
