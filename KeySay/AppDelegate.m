@@ -9,10 +9,11 @@ extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 
 @interface AppDelegate ()
 
-@property(strong) NSSpeechSynthesizer *speechSynth;
+@property(strong) NSSpeechSynthesizer *speechSynth1;
+@property(strong) NSSpeechSynthesizer *speechSynth2;
 @property NSTimeInterval lastAnnounce;
-@property(strong) NSSound *rusSound;
-@property(strong) NSSound *latSound;
+@property(strong) NSSound *sound1;
+@property(strong) NSSound *sound2;
 
 @property (weak) IBOutlet NSWindow *window;
 
@@ -27,27 +28,30 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 - (void)announce {
-    if( self.speechSynth != nil ) {
+    if( self.speechSynth1 != nil && self.speechSynth2 != nil ) {
         TISInputSourceRef inputSource = TISCopyCurrentKeyboardInputSource();
         NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID);
         if( [inputSourceID isEqualToString:@"com.apple.keylayout.ABC"] )
-            [self.speechSynth startSpeakingString:@"Lat"];
+            [self.speechSynth2 startSpeakingString:@"Lat"];
         if( [inputSourceID isEqualToString:@"com.apple.keylayout.Russian"] )
-            [self.speechSynth startSpeakingString:@"Rus"];
+            [self.speechSynth1 startSpeakingString:@"Rus"];
         CFRelease(inputSource);
         self.lastAnnounce = CACurrentMediaTime();
     }
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    NSURL *latSoundURL = [[NSBundle mainBundle] URLForResource:@"keyb_click" withExtension:@"riff"];
-    NSURL *rusSoundURL = [[NSBundle mainBundle] URLForResource:@"ios_click" withExtension:@"riff"];
+    NSURL *sound1 = [[NSBundle mainBundle] URLForResource:@"keyb_click" withExtension:@"riff"];
+    NSURL *sound2 = [[NSBundle mainBundle] URLForResource:@"ios_click" withExtension:@"riff"];
     
-    self.latSound = [[NSSound alloc] initWithContentsOfURL:latSoundURL byReference:NO];
-    self.rusSound = [[NSSound alloc] initWithContentsOfURL:rusSoundURL byReference:NO];
-
-    self.speechSynth = [[NSSpeechSynthesizer alloc] initWithVoice:@"com.apple.speech.synthesis.voice.milena.premium"];
-    self.speechSynth.volume = 0.1;
+    self.sound2 = [[NSSound alloc] initWithContentsOfURL:sound2 byReference:NO];
+    self.sound1 = [[NSSound alloc] initWithContentsOfURL:sound1 byReference:NO];
+    
+    //NSArray *voices = [NSSpeechSynthesizer availableVoices];
+    self.speechSynth1 = [[NSSpeechSynthesizer alloc] initWithVoice:@"com.apple.speech.synthesis.voice.milena.premium"];
+    self.speechSynth1.volume = 0.1;
+    self.speechSynth2 = [[NSSpeechSynthesizer alloc] initWithVoice:@"com.apple.speech.synthesis.voice.yuri.premium"];
+    self.speechSynth2.volume = 0.2;
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
                                     (__bridge void*)self, theKeyboardChanged,
@@ -62,12 +66,12 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         TISInputSourceRef inputSource = TISCopyCurrentKeyboardInputSource();
         NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID);
         if( [inputSourceID isEqualToString:@"com.apple.keylayout.ABC"] ) {
-            [self.latSound stop];
-            [self.latSound play];
+            [self.sound1 stop];
+            [self.sound1 play];
         }
         if( [inputSourceID isEqualToString:@"com.apple.keylayout.Russian"] ) {
-            [self.rusSound stop];
-            [self.rusSound play];
+            [self.sound2 stop];
+            [self.sound2 play];
         }
 
         if( eventModifier==0 || eventModifier==NSEventModifierFlagShift ) {
@@ -85,7 +89,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self.window makeKeyAndOrderFront:self];
 
     [self.window performSelector:@selector(close) withObject:nil afterDelay:3];
-    [self.speechSynth startSpeakingString:@"Key Say"];
+    [self.speechSynth1 startSpeakingString:@"Key Say"];
+    [self.speechSynth2 startSpeakingString:@"Key Say"];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
