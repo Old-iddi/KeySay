@@ -1,0 +1,39 @@
+
+/* Class = "NSTextFieldCell"; title = "Announce:"; ObjectID = "5gh-8N-ZRr"; */
+"5gh-8N-ZRr.title" = "Сообщить:";
+
+/* Class = "NSButtonCell"; title = "Flash screen on layout change"; ObjectID = "7fN-YO-GyE"; */
+"7fN-YO-GyE.title" = "Вспышка экрана при смене раскладки ";
+
+/* Class = "NSTextFieldCell"; title = "layout name"; ObjectID = "8uO-6d-tN8"; */
+"8uO-6d-tN8.title" = "layout name";
+
+/* Class = "NSTextFieldCell"; title = "Layout:"; ObjectID = "Du8-Bv-30h"; */
+"Du8-Bv-30h.title" = "Раскладка:";
+
+/* Class = "NSButtonCell"; title = "Show splash screen"; ObjectID = "Lo2-C8-h9p"; */
+"Lo2-C8-h9p.title" = "Показывать заставку";
+
+/* Class = "NSWindow"; title = "Window"; ObjectID = "Od7-JD-BXS"; */
+"Od7-JD-BXS.title" = "Window";
+
+/* Class = "NSTextFieldCell"; title = "Key click sound:"; ObjectID = "Wb3-y3-vgy"; */
+"Wb3-y3-vgy.title" = "Звук нажатия:";
+
+/* Class = "NSTextFieldCell"; title = "sound name"; ObjectID = "Yy5-PV-iyG"; */
+"Yy5-PV-iyG.title" = "sound name";
+
+/* Class = "NSTextFieldCell"; title = "KeySay 0.1.8\n© 2026 Denis Ionov"; ObjectID = "ax1-Kt-cfq"; */
+"ax1-Kt-cfq.title" = "KeySay 0.1.8\n© 2026 Denis Ionov";
+
+/* Class = "NSWindow"; title = "KeySay Settings"; ObjectID = "gSI-c6-dop"; */
+"gSI-c6-dop.title" = "KeySay Настройки";
+
+/* Class = "NSTextFieldCell"; title = "voice name"; ObjectID = "q4r-Hk-1qo"; */
+"q4r-Hk-1qo.title" = "voice name";
+
+/* Class = "NSButtonCell"; title = "Start Automatically"; ObjectID = "x3u-ZO-ieQ"; */
+"x3u-ZO-ieQ.title" = "Автозапуск";
+
+/* Class = "NSTextFieldCell"; title = "Voice:"; ObjectID = "ztN-iH-o51"; */
+"ztN-iH-o51.title" = "Голос:";

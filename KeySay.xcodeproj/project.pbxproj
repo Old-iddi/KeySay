@@ -21,6 +21,7 @@
 /* Begin PBXFileReference section */
 		6001759329E6731C00791879 /* 1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1024.png; sourceTree = "<group>"; };
 		6006A8E529E5275000697542 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		6052D536302B428F0009A955 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		60BAC21C302A4A630070BA5B /* 16@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "16@2x.png"; sourceTree = "<group>"; };
 		60D8EFB41E0FF12B00C7036A /* KeySay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeySay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		60D8EFB71E0FF12B00C7036A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -117,6 +118,7 @@
 				TargetAttributes = {
 					60D8EFB31E0FF12B00C7036A = {
 						CreatedOnToolsVersion = 8.2;
+						DevelopmentTeam = R7HWM7XV2N;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -128,6 +130,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 60D8EFAB1E0FF12B00C7036A;
 			productRefGroup = 60D8EFB51E0FF12B00C7036A /* Products */;
@@ -173,6 +176,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				60D8EFC01E0FF12B00C7036A /* Base */,
+				6052D536302B428F0009A955 /* ru */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -293,8 +297,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
+				DEVELOPMENT_TEAM = R7HWM7XV2N;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = KeySay/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KeySay;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -310,8 +317,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
+				DEVELOPMENT_TEAM = R7HWM7XV2N;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = KeySay/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KeySay;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
