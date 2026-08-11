@@ -14,7 +14,7 @@ extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 @property NSTimeInterval lastAnnounce;
 @property(strong) NSSound *sound1;
 @property(strong) NSSound *sound2;
-
+@property(strong) NSStatusItem *statusItem;
 @property (weak) IBOutlet NSWindow *window;
 
 @end
@@ -40,6 +40,58 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
 }
 
+- (void)setupStatusItem {
+    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:16.0];
+    
+    // Create menu
+    NSMenu *menu = [[NSMenu alloc] init];
+    
+    // Settings menu item
+    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:@"Settings..."
+                                                          action:@selector(openSettings:)
+                                                   keyEquivalent:@","];
+    [settingsItem setTarget:self];
+    [menu addItem:settingsItem];
+    
+    // Separator
+    [menu addItem:[NSMenuItem separatorItem]];
+    
+    // Quit menu item
+    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit"
+                                                      action:@selector(quitApp:)
+                                               keyEquivalent:@"q"];
+    [quitItem setTarget:self];
+    [menu addItem:quitItem];
+    
+    // Set menu for status item
+    [self.statusItem setMenu:menu];
+    
+    // Set icon (you can use system icon or custom image)
+    // Set custom icon (add your icon file to the project)
+    NSImage *icon = [NSImage imageNamed:@"16@2x.png"];
+    //[icon setTemplate:YES]; // For proper dark/light mode support
+    [self.statusItem setImage:icon];
+    
+    // Optional: tooltip
+    [self.statusItem setToolTip:@"KeySay"];
+}
+
+- (void)openSettings:(id)sender {
+    // Show the main window when settings is clicked
+    [self.window makeKeyAndOrderFront:self];
+    [self.window setLevel:kCGMaximumWindowLevel];
+    
+    // Auto-close after 3 seconds
+    [self.window performSelector:@selector(close) withObject:nil afterDelay:3];
+}
+
+- (void)quitApp:(id)sender {
+    // Give speech a moment to start before quitting
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [[NSApplication sharedApplication] terminate:self];
+    });
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSURL *sound1 = [[NSBundle mainBundle] URLForResource:@"keyb_click" withExtension:@"riff"];
     NSURL *sound2 = [[NSBundle mainBundle] URLForResource:@"ios_click" withExtension:@"riff"];
@@ -52,6 +104,9 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.speechSynth1.volume = 0.1;
     self.speechSynth2 = [[NSSpeechSynthesizer alloc] initWithVoice:@"com.apple.speech.synthesis.voice.yuri.premium"];
     self.speechSynth2.volume = 0.2;
+    
+    // Set up status item
+    [self setupStatusItem];
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
                                     (__bridge void*)self, theKeyboardChanged,
@@ -94,7 +149,10 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
+    // Clean up status item
+    if (self.statusItem) {
+        [[NSStatusBar systemStatusBar] removeStatusItem:self.statusItem];
+    }
 }
-
 
 @end
