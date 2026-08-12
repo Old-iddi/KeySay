@@ -28,5 +28,10 @@
 
 @property (strong)  NSMutableDictionary* speechSynth;
 @property (strong)  NSMutableDictionary* sounds;
+
+@property NSTimeInterval lastAnnounce;
+@property(strong) NSStatusItem *statusItem;
+@property (weak) IBOutlet NSWindow *window;
+
 @end
 

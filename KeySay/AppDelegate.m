@@ -4,22 +4,11 @@
 //
 
 #import "AppDelegate.h"
+#import <ApplicationServices/ApplicationServices.h>
 
 extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 
 NSString* valueOrEmptyString(NSString *value) { return ((value)==0)?(@""):(value); }
-
-@interface AppDelegate ()
-
-@property(strong) NSSpeechSynthesizer *speechSynth1;
-@property(strong) NSSpeechSynthesizer *speechSynth2;
-@property NSTimeInterval lastAnnounce;
-@property(strong) NSSound *sound1;
-@property(strong) NSSound *sound2;
-@property(strong) NSStatusItem *statusItem;
-@property (weak) IBOutlet NSWindow *window;
-
-@end
 
 @implementation AppDelegate
 
@@ -41,48 +30,45 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
 }
 
+
+- (void)requestAccessibilityPermissions {
+    NSDictionary *options = @{(__bridge id)kAXTrustedCheckOptionPrompt: @YES};
+    BOOL isTrusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
+}
+
 - (void)setupStatusItem {
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:16.0];
-    
-    // Create menu
+
     NSMenu *menu = [[NSMenu alloc] init];
-    
-    // Settings menu item
-    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:@"Settings..."
+
+    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Settings...", nil)
                                                           action:@selector(openSettings:)
                                                    keyEquivalent:@""];
     [settingsItem setTarget:self];
     [menu addItem:settingsItem];
     
-    // Separator
     [menu addItem:[NSMenuItem separatorItem]];
     
-    // Quit menu item
-    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit"
+    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quit", nil)
                                                       action:@selector(quitApp:)
                                                keyEquivalent:@""];
     [quitItem setTarget:self];
     [menu addItem:quitItem];
     
-    // Set menu for status item
     [self.statusItem setMenu:menu];
     
-    // Set icon (you can use system icon or custom image)
-    // Set custom icon (add your icon file to the project)
     NSImage *icon = [NSImage imageNamed:@"16@2x.png"];
-    //[icon setTemplate:YES]; // For proper dark/light mode support
     [self.statusItem setImage:icon];
     
-    // Optional: tooltip
     [self.statusItem setToolTip:@"KeySay"];
 }
 
 - (void)saveDictionaryToPreferences {
+    [self announceSave];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:self.settings forKey:@"KeySay_0.1"];
 }
 
-// Retrieving dictionary from user defaults
 - (void)loadDictionaryFromPreferences {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     self.settings = [[defaults dictionaryForKey:@"KeySay_0.1"] mutableCopy];
@@ -91,14 +77,9 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
 }
 
-
 - (void)openSettings:(id)sender {
-    // Show the main window when settings is clicked
     [self.settingsWindow makeKeyAndOrderFront:self];
     [self.settingsWindow setLevel:kCGMaximumWindowLevel];
-    
-    // Auto-close after 3 seconds
-    //[self.window performSelector:@selector(close) withObject:nil afterDelay:3];
 }
 
 -(IBAction)flashScreenSet:(id)sender {
@@ -124,15 +105,18 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)announceChanged:(id)sender {
-    self.settings[[NSString stringWithFormat:@"layouts.%@.announce", self.currentLayoutID]]=((NSTextField*)sender).stringValue;
     [self saveDictionaryToPreferences];
     [self setValues];
+}
+
+-(void)announceSave {
+    self.settings[[NSString stringWithFormat:@"layouts.%@.announce", self.currentLayoutID]]=self.announceText.stringValue;
 }
 
 -(IBAction)chooseClickSound:(id)sender {
     self.listOfKeyClicks = [[NSMenu alloc] init];
     
-    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:@"Quiet"
+    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", nil)
                                                           action:@selector(selectClickSound:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
@@ -158,6 +142,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     if( sourceMenuItem.representedObject != nil ) {
         self.keyClick.stringValue = [(NSString*)sourceMenuItem.representedObject lastPathComponent];
         self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]]=(NSString*)sourceMenuItem.representedObject;
+        NSSound *sound = [[NSSound alloc] initWithContentsOfFile:(NSString*)sourceMenuItem.representedObject byReference:NO];
+        [sound play];
     }
     else {
         self.keyClick.stringValue = @"";
@@ -170,7 +156,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 -(IBAction)chooseVoice:(id)sender {
     self.listOfVoices = [[NSMenu alloc] init];
     
-    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:@"Quiet"
+    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", nil)
                                                           action:@selector(selectVoice:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
@@ -215,7 +201,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     self.listOfLayouts = [[NSMenu alloc] init];
     for( int i=0; i < inputSourcesCount; i++ ) {
-        //NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(CFArrayGetValueAtIndex(inputSourcesList, i),kTISPropertyInputSourceID);
         NSString *inputSourceName = (__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i), kTISPropertyLocalizedName);
         NSString *sourceType =(__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i), kTISPropertyInputSourceType);
         if( [sourceType isEqualToString:(NSString*)kTISTypeKeyboardLayout] ) {
@@ -227,7 +212,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
             [self.listOfLayouts addItem:settingsItem];
         }
     }
-    self.settings[[NSString stringWithFormat:@"layouts.%@.announce", self.currentLayoutID]]=self.announceText.stringValue;
+    [self announceSave];
 
     [self.listOfLayouts popUpMenuPositioningItem:[self.listOfLayouts itemAtIndex:1] atLocation:CGPointMake(4, 4) inView:sender];
 }
@@ -241,7 +226,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.currentLayoutName = inputSourceName;
     [self setValues];
     [self saveDictionaryToPreferences];
-    [self setValues];
 }
 
 -(IBAction)playSound:(id)sender {
@@ -379,10 +363,10 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
             [self.speechSynth[synth] startSpeakingString:@"Key Say"];
         }
     }
+    [self requestAccessibilityPermissions];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Clean up status item
     if (self.statusItem) {
         [[NSStatusBar systemStatusBar] removeStatusItem:self.statusItem];
     }
