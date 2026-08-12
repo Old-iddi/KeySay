@@ -37,7 +37,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 - (void)setupStatusItem {
-    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:16.0];
+    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:24.0];
 
     NSMenu *menu = [[NSMenu alloc] init];
 
@@ -57,7 +57,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     [self.statusItem setMenu:menu];
     
-    NSImage *icon = [NSImage imageNamed:@"16@2x.png"];
+    NSImage *icon = [NSImage imageNamed:@"24@2x.png"];
     [self.statusItem setImage:icon];
     
     [self.statusItem setToolTip:@"KeySay"];
