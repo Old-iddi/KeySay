@@ -81,6 +81,18 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 - (void)openSettings:(id)sender {
     [self.settingsWindow makeKeyAndOrderFront:self];
     [self.settingsWindow setLevel:kCGMaximumWindowLevel];
+
+    // Do not give the text field/editor first responder status when opening.
+    [self.settingsWindow makeFirstResponder:nil];
+}
+
+- (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector {
+    if (control == self.announceText && commandSelector == @selector(insertNewline:)) {
+        [self.settingsWindow makeFirstResponder:nil];
+        [self announceChanged:nil];
+        return YES;
+    }
+    return NO;
 }
 
 -(IBAction)flashScreenSet:(id)sender {
@@ -115,6 +127,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)announceChanged:(id)sender {
+    [self.settingsWindow makeFirstResponder:nil];
     [self saveDictionaryToPreferences];
     [self setValues];
 }
@@ -234,14 +247,15 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     self.listOfLayouts = [[NSMenu alloc] init];
     for( int i=0, j=0; i < inputSourcesCount; i++ ) {
-        NSString *inputSourceName = (__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i), kTISPropertyLocalizedName);
-        NSString *sourceType =(__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i), kTISPropertyInputSourceType);
-        NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i),kTISPropertyInputSourceID);
+        TISInputSourceRef inputSource = (TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i);
+        NSString *inputSourceName = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
+        NSString *sourceType =(__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceType);
+        NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource,kTISPropertyInputSourceID);
         if( [sourceType isEqualToString:(NSString*)kTISTypeKeyboardLayout] ) {
             NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:inputSourceName
                                                                   action:@selector(selectLayout:)
                                                            keyEquivalent:@""];
-            settingsItem.representedObject = (__bridge id _Nullable)(CFArrayGetValueAtIndex(inputSourcesList, i));
+            settingsItem.representedObject = (__bridge id _Nullable)inputSource;
             settingsItem.target = self;
             [self.listOfLayouts addItem:settingsItem];
             
@@ -411,12 +425,13 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.currentLayoutName = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
     [self loadDictionaryFromPreferences];
     [self setValues];
+
+    self.announceText.delegate = self;
+    self.announceText.target = self;
+    self.announceText.action = @selector(announceChanged:);
     
     [self setupStatusItem];
     
-     
-   // NSString *infoPlist = [[NSBundle mainBundle] pathForResource:@"Info.plist" ofType:@"plist"];
-   // NSDictionary *infoDict = [[NSDictionary alloc] initWithContentsOfFile:infoPlist];
     NSString *shortVersionString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     if( shortVersionString == nil ) {
         shortVersionString = @"n/a";

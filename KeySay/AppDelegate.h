@@ -7,7 +7,7 @@
 #include <Carbon/Carbon.h>
 #include <Foundation/Foundation.h>
 
-@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate, NSTextFieldDelegate>
     
 @property (strong) IBOutlet NSWindow *settingsWindow;
 @property (strong) IBOutlet NSView *settingsView;
@@ -37,4 +37,3 @@
 @property (weak) IBOutlet NSWindow *window;
 
 @end
-
