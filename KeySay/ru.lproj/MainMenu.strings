@@ -18,7 +18,7 @@
 "Od7-JD-BXS.title" = "Window";
 
 /* Class = "NSTextFieldCell"; title = "Key click sound:"; ObjectID = "Wb3-y3-vgy"; */
-"Wb3-y3-vgy.title" = "Звук нажатия:";
+"Wb3-y3-vgy.title" = "Звук нажатия клавиш:";
 
 /* Class = "NSTextFieldCell"; title = "sound name"; ObjectID = "Yy5-PV-iyG"; */
 "Yy5-PV-iyG.title" = "sound name";

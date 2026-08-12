@@ -5,6 +5,7 @@
 
 #import "AppDelegate.h"
 #import <ApplicationServices/ApplicationServices.h>
+#import <ServiceManagement/ServiceManagement.h>
 
 extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 
@@ -104,6 +105,15 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self setValues];
 }
 
+-(IBAction)autostartSet:(id)sender {
+    if( self.autostart.state == NSOnState ) {
+        [self addToLoginItems];
+    }
+    else {
+        [self removeFromLoginItems];
+    }
+}
+
 -(IBAction)announceChanged:(id)sender {
     [self saveDictionaryToPreferences];
     [self setValues];
@@ -125,24 +135,38 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self.listOfKeyClicks addItem:[NSMenuItem separatorItem]];
 
     NSArray *sounds = [[NSBundle mainBundle] pathsForResourcesOfType:@"riff" inDirectory:nil];
+    NSArray *sortedSounds = [sounds sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        NSString *one = obj1;
+        NSString *two = obj2;
+        return [one compare:two options:NSNumericSearch];
+    }];
     
-    for( NSString *sound in sounds ) {
-        NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:[sound lastPathComponent]
+    int item = 1;
+    
+    for( NSString *sound in sortedSounds ) {
+        NSString *soundName = [[sound lastPathComponent] stringByDeletingPathExtension];
+        NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:soundName
                                                               action:@selector(selectClickSound:)
                                                        keyEquivalent:@""];
-        settingsItem.representedObject = sound;
+        settingsItem.representedObject = [[sound lastPathComponent] stringByDeletingPathExtension];
         settingsItem.target = self;
         [self.listOfKeyClicks addItem:settingsItem];
+        
+        NSString* currentSound =  self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]];
+        if( [soundName isEqualToString:currentSound] ) {
+            item = [sortedSounds indexOfObject:sound]+2;
+        }
     }
-    [self.listOfKeyClicks popUpMenuPositioningItem:[self.listOfKeyClicks itemAtIndex:1] atLocation:CGPointMake(4, 4) inView:sender];
+    [self.listOfKeyClicks popUpMenuPositioningItem:[self.listOfKeyClicks itemAtIndex:item] atLocation:CGPointMake(4, 4) inView:sender];
 }
 
 -(IBAction)selectClickSound:(id)sender {
     NSMenuItem *sourceMenuItem = (NSMenuItem*)sender;
     if( sourceMenuItem.representedObject != nil ) {
-        self.keyClick.stringValue = [(NSString*)sourceMenuItem.representedObject lastPathComponent];
+        self.keyClick.stringValue = (NSString*)sourceMenuItem.representedObject;
         self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]]=(NSString*)sourceMenuItem.representedObject;
-        NSSound *sound = [[NSSound alloc] initWithContentsOfFile:(NSString*)sourceMenuItem.representedObject byReference:NO];
+        NSString *soundPath = [[NSBundle mainBundle] pathForResource:self.keyClick.stringValue ofType:@"riff"];
+        NSSound *sound = [[NSSound alloc] initWithContentsOfFile:soundPath byReference:NO];
         [sound play];
     }
     else {
@@ -166,6 +190,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     NSArray *voices = [NSSpeechSynthesizer availableVoices];
     
+    int item=0;
+    
     for( NSString *voiceID in voices ) {
         NSDictionary *voiceProperties = [NSSpeechSynthesizer attributesForVoice:voiceID];
         NSString *voiceName = voiceProperties[NSVoiceName];
@@ -175,8 +201,13 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         settingsItem.representedObject = voiceID;
         settingsItem.target = self;
         [self.listOfVoices addItem:settingsItem];
+        
+        NSString *currentVoiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
+        if( [voiceID isEqualToString:currentVoiceID] ) {
+            item = [voices indexOfObject:voiceID]+2;
+        }
     }
-    [self.listOfVoices popUpMenuPositioningItem:[self.listOfVoices itemAtIndex:1] atLocation:CGPointMake(4, 4) inView:sender];
+    [self.listOfVoices popUpMenuPositioningItem:[self.listOfVoices itemAtIndex:item] atLocation:CGPointMake(4, 4) inView:sender];
 }
 
 -(IBAction)selectVoice:(id)sender {
@@ -199,10 +230,13 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     CFArrayRef inputSourcesList = TISCreateInputSourceList(NULL, false);
     CFIndex inputSourcesCount = CFArrayGetCount(inputSourcesList);
     
+    int item = 0;
+    
     self.listOfLayouts = [[NSMenu alloc] init];
-    for( int i=0; i < inputSourcesCount; i++ ) {
+    for( int i=0, j=0; i < inputSourcesCount; i++ ) {
         NSString *inputSourceName = (__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i), kTISPropertyLocalizedName);
         NSString *sourceType =(__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i), kTISPropertyInputSourceType);
+        NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i),kTISPropertyInputSourceID);
         if( [sourceType isEqualToString:(NSString*)kTISTypeKeyboardLayout] ) {
             NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:inputSourceName
                                                                   action:@selector(selectLayout:)
@@ -210,11 +244,16 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
             settingsItem.representedObject = (__bridge id _Nullable)(CFArrayGetValueAtIndex(inputSourcesList, i));
             settingsItem.target = self;
             [self.listOfLayouts addItem:settingsItem];
+            
+            if( [inputSourceID isEqualToString:self.currentLayoutID] ) {
+                item = j;
+            }
+            j++;
         }
     }
     [self announceSave];
 
-    [self.listOfLayouts popUpMenuPositioningItem:[self.listOfLayouts itemAtIndex:1] atLocation:CGPointMake(4, 4) inView:sender];
+    [self.listOfLayouts popUpMenuPositioningItem:[self.listOfLayouts itemAtIndex:item] atLocation:CGPointMake(4, 4) inView:sender];
 }
 
 -(IBAction)selectLayout:(id)sender {
@@ -299,16 +338,69 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         }
         NSString *keyClickName = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", inputSourceID]];
         if( keyClickName != nil ) {
-            self.sounds[inputSourceID]=[[NSSound alloc] initWithContentsOfFile:keyClickName byReference:NO];
+            NSString *soundPath = [[NSBundle mainBundle] pathForResource:keyClickName ofType:@"riff"];
+            if( soundPath == nil ) {
+                soundPath = [[NSBundle mainBundle] pathForResource:[[keyClickName lastPathComponent] stringByDeletingPathExtension] ofType:@"riff"];
+            }
+            if( soundPath != nil ) self.sounds[inputSourceID]=[[NSSound alloc] initWithContentsOfFile:soundPath byReference:NO];
         }
     }
 }
 
 - (void)quitApp:(id)sender {
-    // Give speech a moment to start before quitting
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [[NSApplication sharedApplication] terminate:self];
     });
+}
+
+- (void)addToLoginItems {
+    if (@available(macOS 13.0, *)) {
+        SMAppService *service = [SMAppService mainAppService];
+        NSError *error = nil;
+        if (![service registerAndReturnError:&error]) {
+            NSLog(@"Failed to add login item: %@", error.localizedDescription);
+        }
+    } else {
+        // Fallback for older macOS
+        LSSharedFileListRef loginItems = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
+        if (!loginItems) return;
+
+        NSURL *appURL = [NSBundle mainBundle].bundleURL;
+        LSSharedFileListItemRef item = LSSharedFileListInsertItemURL(loginItems, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)appURL, NULL, NULL);
+        if (item) CFRelease(item);
+        CFRelease(loginItems);
+    }
+}
+
+- (void)removeFromLoginItems {
+    if (@available(macOS 13.0, *)) {
+        SMAppService *service = [SMAppService mainAppService];
+        NSError *error = nil;
+        if (![service unregisterAndReturnError:&error]) {
+            NSLog(@"Failed to remove login item: %@", error.localizedDescription);
+        }
+    } else {
+        // Fallback for older macOS
+        LSSharedFileListRef loginItems = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
+        if (!loginItems) return;
+
+        NSURL *appURL = [NSBundle mainBundle].bundleURL;
+        UInt32 seedValue;
+        NSArray *list = (__bridge_transfer NSArray *)LSSharedFileListCopySnapshot(loginItems, &seedValue);
+        for (id itemRef in list) {
+            LSSharedFileListItemRef item = (__bridge LSSharedFileListItemRef)itemRef;
+            CFURLRef itemURL = NULL;
+            if (LSSharedFileListItemResolve(item, 0, &itemURL, NULL) == noErr && itemURL) {
+                if ([(__bridge NSURL *)itemURL isEqual:appURL]) {
+                    LSSharedFileListItemRemove(loginItems, item);
+                    CFRelease(itemURL);
+                    break;
+                }
+                CFRelease(itemURL);
+            }
+        }
+        CFRelease(loginItems);
+    }
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -320,8 +412,24 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self loadDictionaryFromPreferences];
     [self setValues];
     
-    // Set up status item
     [self setupStatusItem];
+    
+     
+   // NSString *infoPlist = [[NSBundle mainBundle] pathForResource:@"Info.plist" ofType:@"plist"];
+   // NSDictionary *infoDict = [[NSDictionary alloc] initWithContentsOfFile:infoPlist];
+    NSString *shortVersionString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    if( shortVersionString == nil ) {
+        shortVersionString = @"n/a";
+    }
+    NSString *longVersionString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"];
+    if( longVersionString == nil ) {
+        longVersionString = @"n/a";
+    }
+    NSString *copyright =[NSBundle.mainBundle objectForInfoDictionaryKey:@"NSHumanReadableCopyright"];
+    if( copyright == nil ) {
+        copyright = @"n/a";
+    }
+   self.versionText.stringValue = [NSString stringWithFormat:@"v%@ (%@)\n%@", shortVersionString, longVersionString, copyright];
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
                                     (__bridge void*)self, theKeyboardChanged,
@@ -363,7 +471,17 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
             [self.speechSynth[synth] startSpeakingString:@"Key Say"];
         }
     }
-    [self requestAccessibilityPermissions];
+    
+    if( @available( macOS 26, *) ) {
+        [self.settingsWindow setOpaque:NO];
+        NSRect frame = self.settingsWindow.frame;
+        frame.origin.x = 0;
+        frame.origin.y = 0;
+        NSGlassEffectView *gev = [[NSGlassEffectView alloc] initWithFrame:frame];
+        [self.settingsView addSubview:gev positioned:NSWindowBelow relativeTo:nil];
+        [self.settingsWindow setBackgroundColor:[NSColor clearColor]];
+        [self requestAccessibilityPermissions];
+    }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

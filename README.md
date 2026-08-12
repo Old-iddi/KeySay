@@ -16,11 +16,7 @@ Please manually add KeySay app to Universal Acces in Privacy & Security in Setti
 
 ## Troubleshooting
 
-- sometimes it may not get access to keyboard events after enabling, so I had to sleep and wake for it to start clicks
-
-## License
-
-GPLv3
+- sometimes it may not get access to keyboard events after enabling, so I had to sleep and wake for it to start clicks or relaunch Key Say
 
 ## Keisai Eisen
 

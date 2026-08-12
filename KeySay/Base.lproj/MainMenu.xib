@@ -16,11 +16,14 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
                 <outlet property="announceText" destination="FiN-ji-PY1" id="Zrm-sb-W7u"/>
+                <outlet property="autostart" destination="kyy-YF-6Yq" id="ZCP-eW-g2F"/>
                 <outlet property="currentLayout" destination="QNE-Oq-ATo" id="t5u-sd-QOO"/>
                 <outlet property="flashScreenOnChange" destination="3eI-js-wFG" id="rRi-ZA-ZBc"/>
                 <outlet property="keyClick" destination="Mjd-KO-k88" id="gzj-be-EIT"/>
+                <outlet property="settingsView" destination="ee2-S7-dR9" id="wFj-j6-wqC"/>
                 <outlet property="settingsWindow" destination="gSI-c6-dop" id="96f-Vh-fWS"/>
                 <outlet property="showSplashScreen" destination="HiL-LE-qeM" id="zSe-Vg-cxT"/>
+                <outlet property="versionText" destination="VDN-t2-R3e" id="sBa-t6-U06"/>
                 <outlet property="voiceName" destination="oQp-KT-lQc" id="D2R-ZU-bkp"/>
                 <outlet property="window" destination="Od7-JD-BXS" id="TsV-SJ-QCC"/>
             </connections>
@@ -43,7 +46,7 @@
             </view>
             <point key="canvasLocation" x="139" y="-78"/>
         </window>
-        <window title="KeySay Settings" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Settings" animationBehavior="default" titlebarAppearsTransparent="YES" id="gSI-c6-dop">
+        <window title="KeySay Settings" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Settings" animationBehavior="default" id="gSI-c6-dop">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <rect key="contentRect" x="0.0" y="0.0" width="321" height="351"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1409"/>
@@ -51,7 +54,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="321" height="351"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QNE-Oq-ATo">
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QNE-Oq-ATo">
                         <rect key="frame" x="73" y="265" width="226" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" title="layout name" drawsBackground="YES" id="8uO-6d-tN8">
@@ -60,8 +63,8 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="khh-wR-UTm">
-                        <rect key="frame" x="10" y="297" width="142" height="16"/>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="khh-wR-UTm">
+                        <rect key="frame" x="10" y="297" width="291" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" title="Keyboard layout:" id="Du8-Bv-30h">
                             <font key="font" usesAppearanceFont="YES"/>
@@ -69,8 +72,8 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PNn-AR-7iG">
-                        <rect key="frame" x="41" y="186" width="69" height="16"/>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PNn-AR-7iG">
+                        <rect key="frame" x="41" y="186" width="228" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" title="Announce:" id="5gh-8N-ZRr">
                             <font key="font" metaFont="system"/>
@@ -78,8 +81,8 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pEq-27-UKh">
-                        <rect key="frame" x="41" y="241" width="55" height="16"/>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pEq-27-UKh">
+                        <rect key="frame" x="41" y="241" width="260" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" title="Voice:" id="ztN-iH-o51">
                             <font key="font" metaFont="system"/>
@@ -87,7 +90,7 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FiN-ji-PY1">
+                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FiN-ji-PY1">
                         <rect key="frame" x="73" y="154" width="194" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="aYG-BT-mhF">
@@ -128,10 +131,13 @@
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kyy-YF-6Yq">
                         <rect key="frame" x="12" y="20" width="205" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Start Automatically" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="x3u-ZO-ieQ">
+                        <buttonCell key="cell" type="check" title="Start Automatically" bezelStyle="regularSquare" imagePosition="left" inset="2" id="x3u-ZO-ieQ">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="autostartSet:" target="Voe-Tx-rLC" id="mNg-IA-mTH"/>
+                        </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dTs-PB-szs">
                         <rect key="frame" x="275" y="155" width="24" height="24"/>
@@ -155,7 +161,7 @@
                             <action selector="playSound:" target="Voe-Tx-rLC" id="BJe-tG-cHv"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VDN-t2-R3e">
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VDN-t2-R3e">
                         <rect key="frame" x="199" y="-8" width="102" height="39"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" alignment="right" id="ax1-Kt-cfq">
@@ -182,7 +188,7 @@
                             <action selector="chooseLayout:" target="Voe-Tx-rLC" id="xXt-Tj-sdI"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mjd-KO-k88">
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mjd-KO-k88">
                         <rect key="frame" x="73" y="91" width="194" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" title="sound name" drawsBackground="YES" id="Yy5-PV-iyG">
@@ -202,7 +208,7 @@
                             <action selector="chooseClickSound:" target="Voe-Tx-rLC" id="6fH-Cu-11q"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oQp-KT-lQc">
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oQp-KT-lQc">
                         <rect key="frame" x="73" y="209" width="226" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" title="voice name" drawsBackground="YES" id="q4r-Hk-1qo">
@@ -222,8 +228,8 @@
                             <action selector="chooseVoice:" target="Voe-Tx-rLC" id="bX0-Vo-vao"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="a5i-s9-mbW">
-                        <rect key="frame" x="41" y="123" width="103" height="16"/>
+                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="a5i-s9-mbW">
+                        <rect key="frame" x="41" y="123" width="228" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" title="Key click sound:" id="Wb3-y3-vgy">
                             <font key="font" metaFont="system"/>
@@ -233,7 +239,7 @@
                     </textField>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="-555.5" y="-739.5"/>
+            <point key="canvasLocation" x="-995" y="-779"/>
         </window>
     </objects>
     <resources>

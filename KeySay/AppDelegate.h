@@ -10,13 +10,16 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
     
 @property (strong) IBOutlet NSWindow *settingsWindow;
+@property (strong) IBOutlet NSView *settingsView;
 @property (strong) IBOutlet NSTextField *currentLayout;
 @property (strong) IBOutlet NSTextField *voiceName;
 @property (strong) IBOutlet NSTextField *keyClick;
 @property (strong) IBOutlet NSTextField *announceText;
+@property (strong) IBOutlet NSTextField *versionText;
 
 @property (strong) IBOutlet NSButton *flashScreenOnChange;
 @property (strong) IBOutlet NSButton *showSplashScreen;
+@property (strong) IBOutlet NSButton *autostart;
 
 @property (strong)  NSMenu *listOfLayouts;
 @property (strong)  NSMenu *listOfVoices;
