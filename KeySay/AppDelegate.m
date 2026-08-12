@@ -75,6 +75,9 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.settings = [[defaults dictionaryForKey:@"KeySay_0.1"] mutableCopy];
     if( self.settings == nil ) {
         self.settings = [NSMutableDictionary dictionaryWithCapacity:30];
+        self.settings[@"splash"]=@"YES";
+        self.settings[@"nsbeep"]=@"YES";
+        [self performSelector:@selector(openSettings:) withObject:nil afterDelay:4];
     }
 }
 
