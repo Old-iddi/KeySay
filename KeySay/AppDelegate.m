@@ -84,7 +84,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 - (void)openSettings:(id)sender {
     [self.settingsWindow makeKeyAndOrderFront:self];
     [self.settingsWindow setLevel:kCGMaximumWindowLevel];
-
+    [self updateAutostartState];
     // Do not give the text field/editor first responder status when opening.
     [self.settingsWindow makeFirstResponder:nil];
 }
@@ -142,11 +142,14 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 -(IBAction)chooseClickSound:(id)sender {
     self.listOfKeyClicks = [[NSMenu alloc] init];
     
+    NSString *currentSound = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]];
+    
     NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", nil)
                                                           action:@selector(selectClickSound:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
     emptyItem.target = self;
+    emptyItem.state = (currentSound == nil) ? NSOnState : NSOffState;
     [self.listOfKeyClicks addItem:emptyItem];
     [self.listOfKeyClicks addItem:[NSMenuItem separatorItem]];
 
@@ -157,7 +160,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         return [one compare:two options:NSNumericSearch];
     }];
     
-    int item = 1;
+    int item = 0;
     
     for( NSString *sound in sortedSounds ) {
         NSString *soundName = [[sound lastPathComponent] stringByDeletingPathExtension];
@@ -166,14 +169,18 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
                                                        keyEquivalent:@""];
         settingsItem.representedObject = [[sound lastPathComponent] stringByDeletingPathExtension];
         settingsItem.target = self;
-        [self.listOfKeyClicks addItem:settingsItem];
         
-        NSString* currentSound =  self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]];
         if( [soundName isEqualToString:currentSound] ) {
+            settingsItem.state = NSOnState;
             item = [sortedSounds indexOfObject:sound]+2;
         }
+        else {
+            settingsItem.state = NSOffState;
+        }
+        
+        [self.listOfKeyClicks addItem:settingsItem];
     }
-    [self.listOfKeyClicks popUpMenuPositioningItem:[self.listOfKeyClicks itemAtIndex:item] atLocation:CGPointMake(4, 4) inView:sender];
+    [self.listOfKeyClicks popUpMenuPositioningItem:[self.listOfKeyClicks itemAtIndex:item] atLocation:CGPointMake(0, 0) inView:sender];
 }
 
 -(IBAction)selectClickSound:(id)sender {
@@ -196,17 +203,20 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 -(IBAction)chooseVoice:(id)sender {
     self.listOfVoices = [[NSMenu alloc] init];
     
+    NSString *currentVoiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
+    
     NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", nil)
                                                           action:@selector(selectVoice:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
     emptyItem.target = self;
+    emptyItem.state = (currentVoiceID == nil) ? NSOnState : NSOffState;
     [self.listOfVoices addItem:emptyItem];
     [self.listOfVoices addItem:[NSMenuItem separatorItem]];
     
     NSArray *voices = [NSSpeechSynthesizer availableVoices];
     
-    int item=0;
+    int item = 0;
     
     for( NSString *voiceID in voices ) {
         NSDictionary *voiceProperties = [NSSpeechSynthesizer attributesForVoice:voiceID];
@@ -216,14 +226,18 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
                                                        keyEquivalent:@""];
         settingsItem.representedObject = voiceID;
         settingsItem.target = self;
-        [self.listOfVoices addItem:settingsItem];
         
-        NSString *currentVoiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
         if( [voiceID isEqualToString:currentVoiceID] ) {
+            settingsItem.state = NSOnState;
             item = [voices indexOfObject:voiceID]+2;
         }
+        else {
+            settingsItem.state = NSOffState;
+        }
+        
+        [self.listOfVoices addItem:settingsItem];
     }
-    [self.listOfVoices popUpMenuPositioningItem:[self.listOfVoices itemAtIndex:item] atLocation:CGPointMake(4, 4) inView:sender];
+    [self.listOfVoices popUpMenuPositioningItem:[self.listOfVoices itemAtIndex:item] atLocation:CGPointMake(0, 0) inView:sender];
 }
 
 -(IBAction)selectVoice:(id)sender {
@@ -270,7 +284,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
     [self announceSave];
 
-    [self.listOfLayouts popUpMenuPositioningItem:[self.listOfLayouts itemAtIndex:item] atLocation:CGPointMake(4, 4) inView:sender];
+    [self.listOfLayouts popUpMenuPositioningItem:[self.listOfLayouts itemAtIndex:item] atLocation:CGPointMake(0, 0) inView:sender];
 }
 
 -(IBAction)selectLayout:(id)sender {
@@ -418,6 +432,42 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         }
         CFRelease(loginItems);
     }
+}
+
+- (BOOL)isInLoginItems {
+    if (@available(macOS 13.0, *)) {
+        return [SMAppService mainAppService].status == SMAppServiceStatusEnabled;
+    }
+
+    // Fallback for older macOS
+    LSSharedFileListRef loginItems = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
+    if (!loginItems) return NO;
+
+    NSURL *appURL = [NSBundle mainBundle].bundleURL;
+    UInt32 seedValue;
+    NSArray *list = (__bridge_transfer NSArray *)LSSharedFileListCopySnapshot(loginItems, &seedValue);
+    BOOL found = NO;
+
+    for (id itemRef in list) {
+        LSSharedFileListItemRef item = (__bridge LSSharedFileListItemRef)itemRef;
+        CFURLRef itemURL = NULL;
+
+        if (LSSharedFileListItemResolve(item, 0, &itemURL, NULL) == noErr && itemURL) {
+            if ([(__bridge NSURL *)itemURL isEqual:appURL]) {
+                found = YES;
+                CFRelease(itemURL);
+                break;
+            }
+            CFRelease(itemURL);
+        }
+    }
+    CFRelease(loginItems);
+    return found;
+}
+
+- (void)updateAutostartState {
+    BOOL inLoginItems = [self isInLoginItems];
+    [self.autostart setState:(inLoginItems ? NSOnState : NSOffState)];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {

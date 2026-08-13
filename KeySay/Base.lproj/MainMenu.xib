@@ -55,9 +55,9 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QNE-Oq-ATo">
-                        <rect key="frame" x="73" y="265" width="226" height="24"/>
+                        <rect key="frame" x="105" y="265" width="194" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" title="layout name" drawsBackground="YES" id="8uO-6d-tN8">
+                        <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="bezel" title="layout name" bezelStyle="round" id="8uO-6d-tN8">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -90,10 +90,10 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FiN-ji-PY1">
+                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FiN-ji-PY1">
                         <rect key="frame" x="73" y="154" width="194" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="aYG-BT-mhF">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" id="aYG-BT-mhF">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -177,52 +177,41 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="1024" id="3Kx-t0-WzX"/>
                     </imageView>
-                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JbO-Kv-Rrw">
-                        <rect key="frame" x="275" y="265" width="24" height="24"/>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JbO-Kv-Rrw">
+                        <rect key="frame" x="73" y="265" width="24" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xDo-2Q-1hu">
+                        <buttonCell key="cell" type="roundRect" bezelStyle="roundedRect" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xDo-2Q-1hu">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
                             <action selector="chooseLayout:" target="Voe-Tx-rLC" id="xXt-Tj-sdI"/>
                         </connections>
                     </button>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mjd-KO-k88">
-                        <rect key="frame" x="73" y="91" width="194" height="24"/>
+                        <rect key="frame" x="105" y="91" width="162" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" title="sound name" drawsBackground="YES" id="Yy5-PV-iyG">
+                        <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="bezel" title="sound name" bezelStyle="round" id="Yy5-PV-iyG">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YkG-fY-d02">
-                        <rect key="frame" x="243" y="91" width="24" height="24"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JLc-Te-mhK">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="chooseClickSound:" target="Voe-Tx-rLC" id="6fH-Cu-11q"/>
-                        </connections>
-                    </button>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oQp-KT-lQc">
-                        <rect key="frame" x="73" y="209" width="226" height="24"/>
+                        <rect key="frame" x="105" y="209" width="194" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="border" title="voice name" drawsBackground="YES" id="q4r-Hk-1qo">
+                        <textFieldCell key="cell" lineBreakMode="clipping" borderStyle="bezel" title="voice name" bezelStyle="round" id="q4r-Hk-1qo">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wg2-YT-m9e">
-                        <rect key="frame" x="275" y="209" width="24" height="24"/>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wg2-YT-m9e">
+                        <rect key="frame" x="73" y="209" width="24" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ec3-FU-rnB">
+                        <buttonCell key="cell" type="roundRect" bezelStyle="roundedRect" image="NSTouchBarGoDownTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ec3-FU-rnB">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
                             <action selector="chooseVoice:" target="Voe-Tx-rLC" id="bX0-Vo-vao"/>
@@ -237,9 +226,20 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YkG-fY-d02">
+                        <rect key="frame" x="73" y="91" width="24" height="24"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="roundRect" bezelStyle="roundedRect" image="NSTouchBarGoDownTemplate" imagePosition="leading" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JLc-Te-mhK">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="cellTitle"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="chooseClickSound:" target="Voe-Tx-rLC" id="6fH-Cu-11q"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="-995" y="-779"/>
+            <point key="canvasLocation" x="-995.5" y="-779.5"/>
         </window>
     </objects>
     <resources>
