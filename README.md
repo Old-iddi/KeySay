@@ -2,9 +2,9 @@
 
 <img src="KeySay/1024.png" width="256" height="256" alt="KeySay icon">
 
-1. This app announces change of keyboard layout with Text To Speech and System Beep
+1. This app announces change of keyboard layout with Text To Speech and System Beep/Screen Flash (if screen flash enabled in system settings)
 2. Also it reminds current keyboard layout after 10 seconds without kepresses
-2. And also it play different keyclick sound for different keyboard layouts
+3. And also it play different keyclick sound for different keyboard layouts
 
 ## Use
 
@@ -12,11 +12,13 @@ Get Release - it is signed and notarised.
 
 Settings and Quit available through menu bar item.
 
-Please manually add KeySay app to Universal Acces in Privacy & Security in Settings
+<img src="Menu_Item.png" width="120" height="114" alt="Menu Item">
+
+<img src="Settings_Window.png" width="256" height="297" alt="Settings Window">
 
 ## Troubleshooting
 
-- sometimes it may not get access to keyboard events after enabling, so I had to sleep and wake for it to start clicks or relaunch Key Say
+- Restart KeySay after it added and enabled in the Privacy and Security -> Universal Access it is neccessary to play keyboard click sounds.
 
 ## Keisai Eisen
 
