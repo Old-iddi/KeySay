@@ -37,6 +37,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6035247D302B997900190FAF /* riff */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = riff; sourceTree = "<group>"; };
+		607789EC3030705E002F40DB /* riff2 */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = riff2; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +76,7 @@
 				60DA9257302C175A005C5473 /* Localizable.strings */,
 				60D8EFBF1E0FF12B00C7036A /* MainMenu.xib */,
 				60D8EFC21E0FF12B00C7036A /* Info.plist */,
+				607789EC3030705E002F40DB /* riff2 */,
 				6035247D302B997900190FAF /* riff */,
 				6001759329E6731C00791879 /* 1024.png */,
 				60EB6A1D302C339900CDE584 /* 24@2x.png */,
@@ -110,6 +112,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				6035247D302B997900190FAF /* riff */,
+				607789EC3030705E002F40DB /* riff2 */,
 			);
 			name = KeySay;
 			productName = BCDClock;
@@ -317,7 +320,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = R7HWM7XV2N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = KeySay/Info.plist;
@@ -342,7 +345,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = R7HWM7XV2N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = KeySay/Info.plist;
