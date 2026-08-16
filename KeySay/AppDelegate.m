@@ -10,6 +10,7 @@
 extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 
 NSString* valueOrEmptyString(NSString *value) { return ((value)==0)?(@""):(value); }
+int valueOr( NSString *value, int defaultValue ) { return ((value)==0)?(defaultValue):(value.intValue); }
 
 @implementation AppDelegate
 
@@ -361,11 +362,11 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
     
     NSString *speechVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", self.currentLayoutID]];
-    self.speechVol.intValue = (speechVolString==nil)?(50):(speechVolString.intValue);
+    self.speechVol.intValue = valueOr(speechVolString,50);
     
     NSString *soundVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.keyclickVol", self.currentLayoutID]];
-    self.soundVol.intValue = (soundVolString==nil)?(50):(soundVolString.intValue);
-
+    self.soundVol.intValue = valueOr(soundVolString,50);
+    
     [self updateEnvironment];
 }
 
@@ -382,7 +383,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         NSString *voiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", inputSourceID]];
         if( voiceID != nil ) {
             NSSpeechSynthesizer *synth =[[NSSpeechSynthesizer alloc] initWithVoice:voiceID];
-            double vol = self.speechVol.doubleValue/100.0;
+            NSString *speechVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", inputSourceID]];
+            double vol = valueOr(speechVolString,50)/100.0;
             [synth setVolume:vol];
             self.speechSynth[inputSourceID]=synth;
         }
@@ -393,7 +395,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
                 soundPath = [[NSBundle mainBundle] pathForResource:[[keyClickName lastPathComponent] stringByDeletingPathExtension] ofType:@"riff"];
             }
             if( soundPath != nil ) self.sounds[inputSourceID]=[[NSSound alloc] initWithContentsOfFile:soundPath byReference:NO];
-            double vol = self.soundVol.doubleValue/100.0;
+            NSString *soundVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.keyclickVol", inputSourceID]];
+            double vol = valueOr(soundVolString,50)/100.0;
             [self.sounds[inputSourceID] setVolume:vol];
         }
     }
