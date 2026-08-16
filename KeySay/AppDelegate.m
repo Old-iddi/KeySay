@@ -129,6 +129,18 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
 }
 
+-(IBAction)speechVolChanged:(id)sender {
+    self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", self.currentLayoutID]]=self.speechVol.stringValue;
+    [self saveDictionaryToPreferences];
+    [self setValues];
+}
+
+-(IBAction)soundVolChanged:(id)sender {
+    self.settings[[NSString stringWithFormat:@"layouts.%@.keyclickVol", self.currentLayoutID]]=self.soundVol.stringValue;
+    [self saveDictionaryToPreferences];
+    [self setValues];
+}
+
 -(IBAction)announceChanged:(id)sender {
     [self.settingsWindow makeFirstResponder:nil];
     [self saveDictionaryToPreferences];
@@ -348,6 +360,12 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         [self.showSplashScreen setState:NSOffState];
     }
     
+    NSString *speechVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", self.currentLayoutID]];
+    self.speechVol.intValue = (speechVolString==nil)?(50):(speechVolString.intValue);
+    
+    NSString *soundVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.keyclickVol", self.currentLayoutID]];
+    self.soundVol.intValue = (soundVolString==nil)?(50):(soundVolString.intValue);
+
     [self updateEnvironment];
 }
 
@@ -364,7 +382,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         NSString *voiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", inputSourceID]];
         if( voiceID != nil ) {
             NSSpeechSynthesizer *synth =[[NSSpeechSynthesizer alloc] initWithVoice:voiceID];
-            [synth setVolume:0.4];
+            double vol = self.speechVol.doubleValue/100.0;
+            [synth setVolume:vol];
             self.speechSynth[inputSourceID]=synth;
         }
         NSString *keyClickName = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", inputSourceID]];
@@ -374,6 +393,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
                 soundPath = [[NSBundle mainBundle] pathForResource:[[keyClickName lastPathComponent] stringByDeletingPathExtension] ofType:@"riff"];
             }
             if( soundPath != nil ) self.sounds[inputSourceID]=[[NSSound alloc] initWithContentsOfFile:soundPath byReference:NO];
+            double vol = self.soundVol.doubleValue/100.0;
+            [self.sounds[inputSourceID] setVolume:vol];
         }
     }
 }

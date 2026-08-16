@@ -21,6 +21,9 @@
 @property (strong) IBOutlet NSButton *showSplashScreen;
 @property (strong) IBOutlet NSButton *autostart;
 
+@property (strong) IBOutlet NSSlider *speechVol;
+@property (strong) IBOutlet NSSlider *soundVol;
+
 @property (strong)  NSMenu *listOfLayouts;
 @property (strong)  NSMenu *listOfVoices;
 @property (strong)  NSMenu *listOfKeyClicks;
