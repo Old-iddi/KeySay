@@ -14,7 +14,7 @@ Settings and Quit available through menu bar item.
 
 <img src="Menu_Item.png" width="120" height="114" alt="Menu Item">
 
-<img src="Settings_Window2.png" width="256" height="339" alt="![Settings](![](![]())) Window">
+<img src="Settings_Window3.png" width="640" height="707" alt="Settings Window">
 
 ## Troubleshooting
 
