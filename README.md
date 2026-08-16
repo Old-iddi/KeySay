@@ -8,7 +8,7 @@
 
 ## Use
 
-Get Release - it is signed and notarised.
+Get latest Release - it is signed and notarised.
 
 Settings and Quit available through menu bar item.
 
