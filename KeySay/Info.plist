@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 Denis Ionov</string>
+	<key>NSInputMonitoringUsageDescription</key>
+	<string>KeySay monitors keyboard input to play sounds and announce the active input source.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

@@ -1,32 +1,21 @@
-/* Title of the alert asking for Accessibility permission */
-"Enable Accessibility Access" = "Включить Универсальный доступ";
+"Drag app to Input Monitoring" = "Перетащите приложение в раздел «Мониторинг ввода»";
 
-/* Message explaining why Accessibility permission is needed and that a restart is required */
-"KeySay needs Accessibility access to intercept keyboard actions and play sounds when you type. Please grant access in System Settings, then restart KeySay." = "KeySay требуется разрешение к Унивкрсальному доступу для перехвата нажатий клавиш и воспроизведения звуков при наборе текста. Пожалуйста, разрешите доступ в Системных настройках, затем перезапустите KeySay.";
+"To play sounds when keys are pressed we need permission for Input Monitoring. There is no automatic way to do it. You need to drag and drop KeySay application to opened preference pane and then enable it with switch on the right." = "Чтобы воспроизводить звуки при нажатии клавиш, нужно разрешение в разделе «Мониторинг ввода». Автоматического способа нет. Перетащите приложение KeySay в открывшуюся панель настроек и включите его переключателем справа.";
 
-/* Button to open System Settings for Accessibility permission */
-"Request Permission" = "Запросить разрешение";
+"Ok" = "ОК";
 
-/* Button to dismiss the alert */
-"Cancel" = "Отмена";
+"Settings..." = "Настройки…";
 
-/* Title of the alert telling the user to restart */
-"Restart Required" = "Требуется перезапуск";
+"Quit" = "Завершить";
 
-/* Message explaining that a restart is needed after granting permission */
-"Accessibility permission has been granted. Restart KeySay to apply the changes." = "Разрешение к Универсальному доступу предоставлено. Перезапустите KeySay, чтобы применить изменения.";
-
-/* Button to restart the application */
-"Restart" = "Перезапустить";
-
-/* Button to dismiss the restart alert */
-"Later" = "Позже";
-
-/* Option for no sound */
 "Quiet" = "Без звука";
 
-/* Menu item to open settings */
-"Settings..." = "Настройки...";
+"No Voice" = "Без голоса";
 
-/* Menu item to quit the application */
-"Quit" = "Выйти";
+"KeySay" = "KeySay";
+
+"Key Say" = "Key Say";
+
+"v%@ (%@)\n%@" = "v%@ (%@)\n%@";
+
+"n/a" = "н/д";

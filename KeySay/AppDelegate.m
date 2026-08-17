@@ -7,6 +7,108 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <ServiceManagement/ServiceManagement.h>
 
+#import <Cocoa/Cocoa.h>
+#import <CoreGraphics/CoreGraphics.h>
+
+@interface KeyLoggerManager : NSObject
+- (void)startMonitoring;
+@property AppDelegate *delegate;
+@end
+
+@implementation KeyLoggerManager {
+    CFMachPortRef _eventTap;
+    CFRunLoopSourceRef _runLoopSource;
+}
+
+CGEventRef KeyboardEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+    if (type == kCGEventKeyDown) {
+        CGKeyCode keyCode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+        NSEvent *nsEvent = [NSEvent eventWithCGEvent:event];
+        [(__bridge KeyLoggerManager *)refcon eventOccured:nsEvent];
+        
+    }
+    return event;
+}
+
+- (void)openInputMonitoringSettings {
+    NSString *urlString;
+
+    if (@available(macOS 13.0, *)) {
+        // macOS Ventura and later: System Settings
+        urlString = @"x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ListenEvent";
+    } else {
+        // macOS 10.15–12: System Preferences
+        urlString = @"x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent";
+    }
+
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (url != nil) {
+        [[NSWorkspace sharedWorkspace] openURL:url];
+    }
+    
+    [self openFolderContainingApplication];
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.alertStyle = NSAlertStyleInformational;
+    alert.messageText = NSLocalizedString(@"Drag app to Input Monitoring", @"");
+    alert.informativeText = NSLocalizedString(@"To play sounds when keys are pressed we need permission for Input Monitoring. There is no automatic way to do it. You need to drag and drop KeySay application to opened preference pane and then enable it with switch on the right.", @"");
+    [alert addButtonWithTitle:NSLocalizedString(@"Ok", @"")];
+    [alert runModal];
+}
+
+- (void)openFolderContainingApplication {
+    NSURL *appURL = [[NSBundle mainBundle] bundleURL];
+    NSURL *containingFolderURL = [appURL URLByDeletingLastPathComponent];
+
+    if (appURL == nil || containingFolderURL == nil) {
+        return;
+    }
+    [[NSWorkspace sharedWorkspace] selectFile:appURL.path
+                     inFileViewerRootedAtPath:containingFolderURL.path];
+}
+
+- (void)startMonitoring {
+    if (@available(macOS 10.15, *)) {
+        BOOL hasAccess = CGPreflightListenEventAccess();
+        if (!hasAccess) {
+            [self openInputMonitoringSettings];
+            return;
+        }
+    }
+
+    CGEventMask eventMask = CGEventMaskBit(kCGEventKeyDown) | CGEventMaskBit(kCGEventKeyUp);
+    _eventTap = CGEventTapCreate(
+        kCGSessionEventTap,
+        kCGHeadInsertEventTap,
+        kCGEventTapOptionListenOnly,
+        eventMask,
+        KeyboardEventCallback,
+        (__bridge void *)self
+    );
+
+    _runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, _eventTap, 0);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), _runLoopSource, kCFRunLoopCommonModes);
+    CGEventTapEnable(_eventTap, true);
+}
+
+-(void)eventOccured:(NSEvent*)event {
+    [self.delegate eventOccured:event];
+}
+
+- (void)dealloc {
+    if (_runLoopSource) {
+        CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _runLoopSource, kCFRunLoopCommonModes);
+        CFRelease(_runLoopSource);
+    }
+    if (_eventTap) {
+        CFMachPortInvalidate(_eventTap);
+        CFRelease(_eventTap);
+    }
+}
+
+@end
+
+
 extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 
 NSString* valueOrEmptyString(NSString *value) { return ((value)==0)?(@""):(value); }
@@ -14,6 +116,8 @@ int valueOr( NSString *value, int defaultValue ) { return ((value)==0)?(defaultV
 
 @interface AppDelegate ()
 @property (nonatomic, strong) NSTimer *accessibilityTimer;
+@property (strong) KeyLoggerManager *klmanager;
+@property (nonatomic) BOOL didShowInitialSettingsWindow;
 @end
 
 @implementation AppDelegate
@@ -36,71 +140,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
 }
 
-- (void)requestAccessibilityPermissions {
-    NSDictionary *options = @{(__bridge id)kAXTrustedCheckOptionPrompt: @YES};
-    BOOL isTrusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
-    if (!isTrusted) {
-        [self beginMonitoringAccessibilityPermission];
-    }
-}
-
-- (void)showAccessibilityPermissionAlert {
-    if (AXIsProcessTrusted()) {
-        return;
-    }
-    
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.alertStyle = NSAlertStyleInformational;
-    alert.messageText = NSLocalizedString(@"Enable Accessibility Access", @"Title of the alert asking for Accessibility permission");
-    alert.informativeText = NSLocalizedString(@"KeySay needs Accessibility access to intercept keyboard actions and play sounds when you type. Please grant access in System Settings, then restart KeySay.", @"Message explaining why Accessibility permission is needed and that a restart is required");
-    [alert addButtonWithTitle:NSLocalizedString(@"Request Permission", @"Button to open System Settings for Accessibility permission")];
-    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"Button to dismiss the alert")];
-    
-    if ([alert runModal] == NSAlertFirstButtonReturn) {
-        [self requestAccessibilityPermissions];
-    }
-}
-
-- (void)beginMonitoringAccessibilityPermission {
-    if (self.accessibilityTimer != nil || AXIsProcessTrusted()) {
-        return;
-    }
-    
-    self.accessibilityTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
-                                                               target:self
-                                                             selector:@selector(checkAccessibilityPermission)
-                                                             userInfo:nil
-                                                              repeats:YES];
-}
-
-- (void)checkAccessibilityPermission {
-    if (!AXIsProcessTrusted()) {
-        return;
-    }
-    
-    [self.accessibilityTimer invalidate];
-    self.accessibilityTimer = nil;
-    
-    // Open Settings automatically on the next launch, right after the restart.
-    self.settings[@"showSettingsOnNextLaunch"] = @"YES";
-    [self saveDictionaryToPreferences];
-    
-    [self showRestartAlert];
-}
-
-- (void)showRestartAlert {
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.alertStyle = NSAlertStyleInformational;
-    alert.messageText = NSLocalizedString(@"Restart Required", @"Title of the alert telling the user to restart");
-    alert.informativeText = NSLocalizedString(@"Accessibility permission has been granted. Restart KeySay to apply the changes.", @"Message explaining that a restart is needed after granting permission");
-    [alert addButtonWithTitle:NSLocalizedString(@"Restart", @"Button to restart the application")];
-    [alert addButtonWithTitle:NSLocalizedString(@"Later", @"Button to dismiss the restart alert")];
-    
-    if ([alert runModal] == NSAlertFirstButtonReturn) {
-        [self restartApplication:nil];
-    }
-}
-
 - (void)restartApplication:(id)sender {
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
     NSString *command = [NSString stringWithFormat:@"sleep 1; open \"%@\"", bundlePath];
@@ -113,7 +152,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 
     NSMenu *menu = [[NSMenu alloc] init];
 
-    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Settings...", @"Menu item to open settings")
+    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Settings...", @"")
                                                           action:@selector(openSettings:)
                                                    keyEquivalent:@""];
     [settingsItem setTarget:self];
@@ -121,7 +160,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     [menu addItem:[NSMenuItem separatorItem]];
     
-    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quit", @"Menu item to quit the application")
+    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quit", @"")
                                                       action:@selector(quitApp:)
                                                keyEquivalent:@""];
     [quitItem setTarget:self];
@@ -132,7 +171,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     NSImage *icon = [NSImage imageNamed:@"24@2x.png"];
     [self.statusItem setImage:icon];
     
-    [self.statusItem setToolTip:@"KeySay"];
+    [self.statusItem setToolTip:NSLocalizedString(@"KeySay", @"")];
 }
 
 - (void)saveDictionaryToPreferences {
@@ -226,7 +265,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     NSString *currentSound = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]];
     
-    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", @"Option for no sound")
+    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", @"")
                                                           action:@selector(selectClickSound:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
@@ -287,7 +326,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     NSString *currentVoiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
     
-    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", @"Option for no speech")
+    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"No Voice", @"")
                                                           action:@selector(selectVoice:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
@@ -563,6 +602,61 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self.autostart setState:(inLoginItems ? NSOnState : NSOffState)];
 }
 
+-(void)eventOccured:(NSEvent*)event {
+    NSEventModifierFlags eventModifier = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
+    
+    TISInputSourceRef inputSource = TISCopyCurrentKeyboardInputSource();
+    NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID);
+    NSSound *keyClick = self.sounds[inputSourceID];
+    if( keyClick != nil ) {
+        [keyClick stop];
+        [keyClick play];
+    }
+    
+    if( eventModifier==0 || eventModifier==NSEventModifierFlagShift ) {
+        double currentTime = CACurrentMediaTime();
+        if( fabs(self.lastAnnounce-currentTime) > 10.0 ) {
+            [self announce];
+        }
+        self.lastAnnounce = currentTime;
+    }
+}
+
+-(void)startKeylogger {
+    self.klmanager = [[KeyLoggerManager alloc] init];
+    self.klmanager.delegate = self;
+    [self.klmanager startMonitoring];
+}
+
+- (void)showInitialSettingsWindowIfNeeded {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+    if (self.didShowInitialSettingsWindow) {
+        return;
+    }
+
+    if ([defaults boolForKey:@"KeySay_0.1_InitialSettingsShown"]) {
+        self.didShowInitialSettingsWindow = YES;
+        return;
+    }
+
+    if ([defaults dictionaryForKey:@"KeySay_0.1"] != nil) {
+        return;
+    }
+
+    // If Input Monitoring permission still needs user action, let that flow
+    // present its own system settings/alert instead of also showing this window.
+    if (@available(macOS 10.15, *)) {
+        if (!CGPreflightListenEventAccess()) {
+            return;
+        }
+    }
+
+    self.didShowInitialSettingsWindow = YES;
+    [defaults setBool:YES forKey:@"KeySay_0.1_InitialSettingsShown"];
+    [self openSettings:self];
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     
     TISInputSourceRef inputSource = TISCopyCurrentKeyboardInputSource();
@@ -580,46 +674,23 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     NSString *shortVersionString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     if( shortVersionString == nil ) {
-        shortVersionString = @"n/a";
+        shortVersionString = NSLocalizedString(@"n/a", @"");
     }
     NSString *longVersionString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"];
     if( longVersionString == nil ) {
-        longVersionString = @"n/a";
+        longVersionString = NSLocalizedString(@"n/a", @"");
     }
     NSString *copyright =[NSBundle.mainBundle objectForInfoDictionaryKey:@"NSHumanReadableCopyright"];
     if( copyright == nil ) {
-        copyright = @"n/a";
+        copyright = NSLocalizedString(@"n/a", @"");
     }
-   self.versionText.stringValue = [NSString stringWithFormat:@"v%@ (%@)\n%@", shortVersionString, longVersionString, copyright];
+    self.versionText.stringValue = [NSString stringWithFormat:NSLocalizedString(@"v%@ (%@)\n%@", @""), shortVersionString, longVersionString, copyright];
 
     CFNotificationCenterAddObserver(CFNotificationCenterGetDistributedCenter(),
                                     (__bridge void*)self, theKeyboardChanged,
         kTISNotifySelectedKeyboardInputSourceChanged, NULL,
         CFNotificationSuspensionBehaviorDeliverImmediately);
-    
-
-    [NSEvent addGlobalMonitorForEventsMatchingMask:NSEventMaskKeyDown
-                                           handler:^(NSEvent *event){
         
-        NSEventModifierFlags eventModifier = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
-
-        TISInputSourceRef inputSource = TISCopyCurrentKeyboardInputSource();
-        NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID);
-        NSSound *keyClick = self.sounds[inputSourceID];
-        if( keyClick != nil ) {
-            [keyClick stop];
-            [keyClick play];
-        }
-
-        if( eventModifier==0 || eventModifier==NSEventModifierFlagShift ) {
-            double currentTime = CACurrentMediaTime();
-            if( fabs(self.lastAnnounce-currentTime) > 10.0 ) {
-                [self announce];
-            }
-            self.lastAnnounce = currentTime;
-        }
-    }];
-    
     if( self.settings[@"splash"] != nil ) {
         [self.window setOpaque:NO];
         [self.window setBackgroundColor: [NSColor clearColor]];
@@ -627,24 +698,18 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         [self.window makeKeyAndOrderFront:self];
         
         [self.window performSelector:@selector(close) withObject:nil afterDelay:3];
-
-        [self performSelector:@selector(showAccessibilityPermissionAlert) withObject:nil afterDelay:3.5];        
+        
+        [self performSelector:@selector(startKeylogger) withObject:nil afterDelay:3.5];
         
         for( NSSpeechSynthesizer *synth in self.speechSynth ) {
-            [self.speechSynth[synth] startSpeakingString:@"Key Say"];
+            [self.speechSynth[synth] startSpeakingString:NSLocalizedString(@"Key Say", @"")];
         }
     } else {
-        [self performSelector:@selector(showAccessibilityPermissionAlert) withObject:nil afterDelay:0.5];
+        [self performSelector:@selector(startKeylogger) withObject:nil afterDelay:3.5];
     }
-    
-    // Open Settings once, right after the restart that followed granting
-    // accessibility permission. Subsequent launches won't show it automatically.
-    if( self.settings[@"showSettingsOnNextLaunch"] != nil ) {
-        [self.settings removeObjectForKey:@"showSettingsOnNextLaunch"];
-        [self saveDictionaryToPreferences];
-        [self performSelector:@selector(openSettings:) withObject:nil afterDelay:4.0];
-    }
-    
+
+    [self showInitialSettingsWindowIfNeeded];
+
     if( @available( macOS 26, *) ) {
         [self.settingsWindow setOpaque:NO];
         NSRect frame = self.settingsWindow.frame;
@@ -653,7 +718,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         NSGlassEffectView *gev = [[NSGlassEffectView alloc] initWithFrame:frame];
         [self.settingsView addSubview:gev positioned:NSWindowBelow relativeTo:nil];
         [self.settingsWindow setBackgroundColor:[NSColor clearColor]];
-        // Accessibility prompt is now shown by showAccessibilityPermissionAlert after the splash screen.
     }
 }
 

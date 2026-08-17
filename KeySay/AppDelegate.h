@@ -38,5 +38,6 @@
 @property NSTimeInterval lastAnnounce;
 @property(strong) NSStatusItem *statusItem;
 @property (weak) IBOutlet NSWindow *window;
-
+-(void)eventOccured:(NSEvent*)event;
 @end
+
