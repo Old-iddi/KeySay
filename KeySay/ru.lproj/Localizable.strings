@@ -1,12 +1,32 @@
-/* 
-  Localizable.strings
-  KeySay
+/* Title of the alert asking for Accessibility permission */
+"Enable Accessibility Access" = "Включить Универсальный доступ";
 
-  Created by Denis Ionov on 12.08.2026.
-  Copyright © 2026 Denis Ionov. All rights reserved.
-*/
+/* Message explaining why Accessibility permission is needed and that a restart is required */
+"KeySay needs Accessibility access to intercept keyboard actions and play sounds when you type. Please grant access in System Settings, then restart KeySay." = "KeySay требуется разрешение к Унивкрсальному доступу для перехвата нажатий клавиш и воспроизведения звуков при наборе текста. Пожалуйста, разрешите доступ в Системных настройках, затем перезапустите KeySay.";
 
+/* Button to open System Settings for Accessibility permission */
+"Request Permission" = "Запросить разрешение";
 
-"Quit" = "Завершить";
+/* Button to dismiss the alert */
+"Cancel" = "Отмена";
+
+/* Title of the alert telling the user to restart */
+"Restart Required" = "Требуется перезапуск";
+
+/* Message explaining that a restart is needed after granting permission */
+"Accessibility permission has been granted. Restart KeySay to apply the changes." = "Разрешение к Универсальному доступу предоставлено. Перезапустите KeySay, чтобы применить изменения.";
+
+/* Button to restart the application */
+"Restart" = "Перезапустить";
+
+/* Button to dismiss the restart alert */
+"Later" = "Позже";
+
+/* Option for no sound */
+"Quiet" = "Без звука";
+
+/* Menu item to open settings */
 "Settings..." = "Настройки...";
-"Quiet" = "Тишина";
+
+/* Menu item to quit the application */
+"Quit" = "Выйти";

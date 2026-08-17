@@ -12,6 +12,10 @@ extern const CFStringRef kTISNotifySelectedKeyboardInputSourceChanged;
 NSString* valueOrEmptyString(NSString *value) { return ((value)==0)?(@""):(value); }
 int valueOr( NSString *value, int defaultValue ) { return ((value)==0)?(defaultValue):(value.intValue); }
 
+@interface AppDelegate ()
+@property (nonatomic, strong) NSTimer *accessibilityTimer;
+@end
+
 @implementation AppDelegate
 
 void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
@@ -32,10 +36,76 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
 }
 
-
 - (void)requestAccessibilityPermissions {
     NSDictionary *options = @{(__bridge id)kAXTrustedCheckOptionPrompt: @YES};
     BOOL isTrusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
+    if (!isTrusted) {
+        [self beginMonitoringAccessibilityPermission];
+    }
+}
+
+- (void)showAccessibilityPermissionAlert {
+    if (AXIsProcessTrusted()) {
+        return;
+    }
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.alertStyle = NSAlertStyleInformational;
+    alert.messageText = NSLocalizedString(@"Enable Accessibility Access", @"Title of the alert asking for Accessibility permission");
+    alert.informativeText = NSLocalizedString(@"KeySay needs Accessibility access to intercept keyboard actions and play sounds when you type. Please grant access in System Settings, then restart KeySay.", @"Message explaining why Accessibility permission is needed and that a restart is required");
+    [alert addButtonWithTitle:NSLocalizedString(@"Request Permission", @"Button to open System Settings for Accessibility permission")];
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"Button to dismiss the alert")];
+    
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        [self requestAccessibilityPermissions];
+    }
+}
+
+- (void)beginMonitoringAccessibilityPermission {
+    if (self.accessibilityTimer != nil || AXIsProcessTrusted()) {
+        return;
+    }
+    
+    self.accessibilityTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                               target:self
+                                                             selector:@selector(checkAccessibilityPermission)
+                                                             userInfo:nil
+                                                              repeats:YES];
+}
+
+- (void)checkAccessibilityPermission {
+    if (!AXIsProcessTrusted()) {
+        return;
+    }
+    
+    [self.accessibilityTimer invalidate];
+    self.accessibilityTimer = nil;
+    
+    // Open Settings automatically on the next launch, right after the restart.
+    self.settings[@"showSettingsOnNextLaunch"] = @"YES";
+    [self saveDictionaryToPreferences];
+    
+    [self showRestartAlert];
+}
+
+- (void)showRestartAlert {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.alertStyle = NSAlertStyleInformational;
+    alert.messageText = NSLocalizedString(@"Restart Required", @"Title of the alert telling the user to restart");
+    alert.informativeText = NSLocalizedString(@"Accessibility permission has been granted. Restart KeySay to apply the changes.", @"Message explaining that a restart is needed after granting permission");
+    [alert addButtonWithTitle:NSLocalizedString(@"Restart", @"Button to restart the application")];
+    [alert addButtonWithTitle:NSLocalizedString(@"Later", @"Button to dismiss the restart alert")];
+    
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        [self restartApplication:nil];
+    }
+}
+
+- (void)restartApplication:(id)sender {
+    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+    NSString *command = [NSString stringWithFormat:@"sleep 1; open \"%@\"", bundlePath];
+    [NSTask launchedTaskWithLaunchPath:@"/bin/sh" arguments:@[@"-c", command]];
+    [NSApp terminate:nil];
 }
 
 - (void)setupStatusItem {
@@ -43,7 +113,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 
     NSMenu *menu = [[NSMenu alloc] init];
 
-    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Settings...", nil)
+    NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Settings...", @"Menu item to open settings")
                                                           action:@selector(openSettings:)
                                                    keyEquivalent:@""];
     [settingsItem setTarget:self];
@@ -51,7 +121,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     [menu addItem:[NSMenuItem separatorItem]];
     
-    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quit", nil)
+    NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quit", @"Menu item to quit the application")
                                                       action:@selector(quitApp:)
                                                keyEquivalent:@""];
     [quitItem setTarget:self];
@@ -78,7 +148,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         self.settings = [NSMutableDictionary dictionaryWithCapacity:30];
         self.settings[@"splash"]=@"YES";
         self.settings[@"nsbeep"]=@"YES";
-        [self performSelector:@selector(openSettings:) withObject:nil afterDelay:4];
     }
 }
 
@@ -157,7 +226,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     NSString *currentSound = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]];
     
-    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", nil)
+    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", @"Option for no sound")
                                                           action:@selector(selectClickSound:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
@@ -218,7 +287,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     
     NSString *currentVoiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
     
-    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", nil)
+    NSMenuItem *emptyItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Quiet", @"Option for no speech")
                                                           action:@selector(selectVoice:)
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
@@ -558,10 +627,22 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         [self.window makeKeyAndOrderFront:self];
         
         [self.window performSelector:@selector(close) withObject:nil afterDelay:3];
+
+        [self performSelector:@selector(showAccessibilityPermissionAlert) withObject:nil afterDelay:3.5];        
         
         for( NSSpeechSynthesizer *synth in self.speechSynth ) {
             [self.speechSynth[synth] startSpeakingString:@"Key Say"];
         }
+    } else {
+        [self performSelector:@selector(showAccessibilityPermissionAlert) withObject:nil afterDelay:0.5];
+    }
+    
+    // Open Settings once, right after the restart that followed granting
+    // accessibility permission. Subsequent launches won't show it automatically.
+    if( self.settings[@"showSettingsOnNextLaunch"] != nil ) {
+        [self.settings removeObjectForKey:@"showSettingsOnNextLaunch"];
+        [self saveDictionaryToPreferences];
+        [self performSelector:@selector(openSettings:) withObject:nil afterDelay:4.0];
     }
     
     if( @available( macOS 26, *) ) {
@@ -572,11 +653,13 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         NSGlassEffectView *gev = [[NSGlassEffectView alloc] initWithFrame:frame];
         [self.settingsView addSubview:gev positioned:NSWindowBelow relativeTo:nil];
         [self.settingsWindow setBackgroundColor:[NSColor clearColor]];
-        [self requestAccessibilityPermissions];
+        // Accessibility prompt is now shown by showAccessibilityPermissionAlert after the splash screen.
     }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
+    [self.accessibilityTimer invalidate];
+    self.accessibilityTimer = nil;
     if (self.statusItem) {
         [[NSStatusBar systemStatusBar] removeStatusItem:self.statusItem];
     }
