@@ -34,7 +34,7 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="Od7-JD-BXS" customClass="NSPanel">
             <windowStyleMask key="styleMask" utility="YES" fullSizeContentView="YES"/>
             <rect key="contentRect" x="392" y="427" width="512" height="512"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1800" height="1094"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1800" height="1095"/>
             <view key="contentView" id="WbO-We-0Kh">
                 <rect key="frame" x="0.0" y="0.0" width="512" height="512"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -51,7 +51,7 @@
         <window title="KeySay Settings" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Settings" animationBehavior="default" id="gSI-c6-dop">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <rect key="contentRect" x="0.0" y="0.0" width="321" height="420"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1800" height="1094"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1800" height="1095"/>
             <view key="contentView" id="ee2-S7-dR9">
                 <rect key="frame" x="0.0" y="0.0" width="321" height="420"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -170,6 +170,16 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="1024" id="3Kx-t0-WzX"/>
                     </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MpV-kc-2eM">
+                        <rect key="frame" x="66" y="193" width="25.5" height="24"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSTouchBarAudioOutputVolumeOffTemplate" id="6Ep-B8-O64"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zd6-aW-PYi">
+                        <rect key="frame" x="66" y="113" width="24.5" height="24"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSTouchBarAudioOutputVolumeOffTemplate" id="ITN-cg-l6j"/>
+                    </imageView>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JbO-Kv-Rrw">
                         <rect key="frame" x="73" y="334" width="24" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -231,7 +241,7 @@
                         </connections>
                     </button>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ARN-eG-bGQ">
-                        <rect key="frame" x="72" y="116" width="226" height="16"/>
+                        <rect key="frame" x="88" y="116" width="179" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="TfU-XH-1dl">
                             <font key="font" size="12" name="Helvetica"/>
@@ -241,7 +251,7 @@
                         </connections>
                     </slider>
                     <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e0a-Om-zsc">
-                        <rect key="frame" x="72" y="196" width="226" height="16"/>
+                        <rect key="frame" x="88" y="196" width="179" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="021-Ti-iFL">
                             <font key="font" size="12" name="Helvetica"/>
@@ -259,6 +269,16 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xvg-2R-sUd">
+                        <rect key="frame" x="272" y="192" width="26" height="24"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSTouchBarAudioOutputVolumeHighTemplate" id="w9r-6T-Qu5"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cER-Nq-AbP">
+                        <rect key="frame" x="272" y="111" width="24" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyDown" image="NSTouchBarAudioOutputVolumeHighTemplate" id="zIc-dg-BEr"/>
+                    </imageView>
                 </subviews>
             </view>
             <point key="canvasLocation" x="-995.5" y="-745"/>
@@ -266,6 +286,8 @@
     </objects>
     <resources>
         <image name="1024" width="1024" height="1024"/>
+        <image name="NSTouchBarAudioOutputVolumeHighTemplate" width="27" height="19"/>
+        <image name="NSTouchBarAudioOutputVolumeOffTemplate" width="17" height="18"/>
         <image name="NSTouchBarGoDownTemplate" width="18" height="11"/>
         <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
     </resources>
