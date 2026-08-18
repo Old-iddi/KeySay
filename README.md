@@ -10,15 +10,13 @@
 
 Get latest Release - it is signed and notarised.
 
+You'll need to enable Input Monitoring for KeySay (drop application on list in Privacy and Security->Input Monitor). It will ask you on launch.
+
 Settings and Quit available through menu bar item.
 
 <img src="Menu_Item.png" width="120" height="114" alt="Menu Item">
 
 <img src="Settings_Window3.png" width="640" height="707" alt="Settings Window">
-
-## Troubleshooting
-
-- Restart KeySay after it added and enabled in the Privacy and Security -> Universal Access it is neccessary to play keyboard click sounds.
 
 ## Keisai Eisen
 
