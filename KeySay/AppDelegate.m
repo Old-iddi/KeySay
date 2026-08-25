@@ -7,6 +7,7 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <ServiceManagement/ServiceManagement.h>
 
+#import <AVFoundation/AVFoundation.h>
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CoreGraphics.h>
 
@@ -22,7 +23,7 @@
 
 CGEventRef KeyboardEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     if (type == kCGEventKeyDown) {
-        CGKeyCode keyCode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+ //       CGKeyCode keyCode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
         NSEvent *nsEvent = [NSEvent eventWithCGEvent:event];
         [(__bridge KeyLoggerManager *)refcon eventOccured:nsEvent];
         
@@ -118,6 +119,8 @@ int valueOr( NSString *value, int defaultValue ) { return ((value)==0)?(defaultV
 @property (nonatomic, strong) NSTimer *accessibilityTimer;
 @property (strong) KeyLoggerManager *klmanager;
 @property (nonatomic) BOOL didShowInitialSettingsWindow;
+- (AVSpeechSynthesisVoice *)voiceForIdentifier:(NSString *)identifier;
+- (void)speakText:(NSString *)text forLayoutID:(NSString *)layoutID;
 @end
 
 @implementation AppDelegate
@@ -132,7 +135,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID);
     NSString *announce = self.settings[[NSString stringWithFormat:@"layouts.%@.announce", inputSourceID]];
     if( announce != nil ) {
-        [self.speechSynth[inputSourceID] startSpeakingString:announce];
+        [self speakText:announce forLayoutID:inputSourceID];
         self.lastAnnounce = CACurrentMediaTime();
     }
     if( self.settings[@"nsbeep"] != nil ) {
@@ -169,9 +172,9 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     [self.statusItem setMenu:menu];
     
     NSImage *icon = [NSImage imageNamed:@"24@2x.png"];
-    [self.statusItem setImage:icon];
+    [self.statusItem.button setImage:icon];
     
-    [self.statusItem setToolTip:NSLocalizedString(@"KeySay", @"")];
+    [self.statusItem.button setToolTip:NSLocalizedString(@"KeySay", @"")];
 }
 
 - (void)saveDictionaryToPreferences {
@@ -208,7 +211,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)flashScreenSet:(id)sender {
-    if( self.flashScreenOnChange.state == NSOnState ) {
+    if( self.flashScreenOnChange.state == NSControlStateValueOn ) {
         self.settings[@"nsbeep"]=@"YES";
     }
     else {
@@ -219,7 +222,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)showSplashScreenSet:(id)sender {
-    if( self.showSplashScreen.state == NSOnState ) {
+    if( self.showSplashScreen.state == NSControlStateValueOn ) {
         self.settings[@"splash"]=@"YES";
     }
     else {
@@ -230,7 +233,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)autostartSet:(id)sender {
-    if( self.autostart.state == NSOnState ) {
+    if( self.autostart.state == NSControlStateValueOn ) {
         [self addToLoginItems];
     }
     else {
@@ -242,12 +245,19 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", self.currentLayoutID]]=self.speechVol.stringValue;
     [self saveDictionaryToPreferences];
     [self setValues];
+    
+    NSString *announce = self.settings[[NSString stringWithFormat:@"layouts.%@.announce", self.currentLayoutID]];
+    if( announce != nil ) {
+        [self speakText:announce forLayoutID:self.currentLayoutID];
+    }
 }
 
 -(IBAction)soundVolChanged:(id)sender {
     self.settings[[NSString stringWithFormat:@"layouts.%@.keyclickVol", self.currentLayoutID]]=self.soundVol.stringValue;
     [self saveDictionaryToPreferences];
     [self setValues];
+    
+    [self playSound:nil];
 }
 
 -(IBAction)announceChanged:(id)sender {
@@ -270,7 +280,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
     emptyItem.target = self;
-    emptyItem.state = (currentSound == nil) ? NSOnState : NSOffState;
+    emptyItem.state = (currentSound == nil) ? NSControlStateValueOn : NSControlStateValueOff;
     [self.listOfKeyClicks addItem:emptyItem];
     [self.listOfKeyClicks addItem:[NSMenuItem separatorItem]];
 
@@ -292,11 +302,11 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         settingsItem.target = self;
         
         if( [soundName isEqualToString:currentSound] ) {
-            settingsItem.state = NSOnState;
-            item = [sortedSounds indexOfObject:sound]+2;
+            settingsItem.state = NSControlStateValueOn;
+            item = (int)[sortedSounds indexOfObject:sound]+2;
         }
         else {
-            settingsItem.state = NSOffState;
+            settingsItem.state = NSControlStateValueOff;
         }
         
         [self.listOfKeyClicks addItem:settingsItem];
@@ -309,9 +319,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     if( sourceMenuItem.representedObject != nil ) {
         self.keyClick.stringValue = (NSString*)sourceMenuItem.representedObject;
         self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]]=(NSString*)sourceMenuItem.representedObject;
-        NSString *soundPath = [[NSBundle mainBundle] pathForResource:self.keyClick.stringValue ofType:@"riff"];
-        NSSound *sound = [[NSSound alloc] initWithContentsOfFile:soundPath byReference:NO];
-        [sound play];
     }
     else {
         self.keyClick.stringValue = @"";
@@ -319,9 +326,13 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
     [self saveDictionaryToPreferences];
     [self setValues];
+    [self playSound:nil];
 }
 
 -(IBAction)chooseVoice:(id)sender {
+    
+    [(AVSpeechSynthesizer *)self.speechSynth[self.currentLayoutID] stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+
     self.listOfVoices = [[NSMenu alloc] init];
     
     NSString *currentVoiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
@@ -331,29 +342,36 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
                                                    keyEquivalent:@""];
     emptyItem.representedObject = nil;
     emptyItem.target = self;
-    emptyItem.state = (currentVoiceID == nil) ? NSOnState : NSOffState;
+    emptyItem.state = (currentVoiceID == nil) ? NSControlStateValueOn : NSControlStateValueOff;
     [self.listOfVoices addItem:emptyItem];
     [self.listOfVoices addItem:[NSMenuItem separatorItem]];
     
-    NSArray *voices = [NSSpeechSynthesizer availableVoices];
-    
+    NSArray *voices = [AVSpeechSynthesisVoice speechVoices];
+
     int item = 0;
-    
-    for( NSString *voiceID in voices ) {
-        NSDictionary *voiceProperties = [NSSpeechSynthesizer attributesForVoice:voiceID];
-        NSString *voiceName = voiceProperties[NSVoiceName];
+
+    for( AVSpeechSynthesisVoice *voice in voices ) {
+        NSString *voiceID = voice.identifier;
+        NSString *voiceName = voice.name;
+        
+        NSString *language = voice.language;
+        NSLocale *currentLocale = [NSLocale currentLocale];
+        NSString *langName = [currentLocale localizedStringForLanguageCode:language];
+     
+        voiceName = [[voiceName stringByAppendingString:@" - "] stringByAppendingString:langName];
+        
         NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:voiceName
                                                               action:@selector(selectVoice:)
                                                        keyEquivalent:@""];
         settingsItem.representedObject = voiceID;
         settingsItem.target = self;
-        
+ 
         if( [voiceID isEqualToString:currentVoiceID] ) {
-            settingsItem.state = NSOnState;
-            item = [voices indexOfObject:voiceID]+2;
+            settingsItem.state = NSControlStateValueOn;
+            item = (int)[voices indexOfObject:voice]+2;
         }
         else {
-            settingsItem.state = NSOffState;
+            settingsItem.state = NSControlStateValueOff;
         }
         
         [self.listOfVoices addItem:settingsItem];
@@ -362,10 +380,11 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)selectVoice:(id)sender {
+
     NSMenuItem *sourceMenuItem = (NSMenuItem*)sender;
     if( sourceMenuItem.representedObject != nil ) {
-        NSDictionary *voiceProperties = [NSSpeechSynthesizer attributesForVoice:(NSString*)sourceMenuItem.representedObject];
-        NSString *voiceName = voiceProperties[NSVoiceName];
+        AVSpeechSynthesisVoice *voice = [self voiceForIdentifier:(NSString*)sourceMenuItem.representedObject];
+        NSString *voiceName = voice.name;
         self.voiceName.stringValue = voiceName;
         self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]]=(NSString*)sourceMenuItem.representedObject;
     }
@@ -375,6 +394,12 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     }
     [self saveDictionaryToPreferences];
     [self setValues];
+    
+    NSString *announce = self.settings[[NSString stringWithFormat:@"layouts.%@.announce", self.currentLayoutID]];
+    if( announce != nil ) {
+        [self speakText:announce forLayoutID:self.currentLayoutID];
+        self.lastAnnounce = CACurrentMediaTime();
+    }
 }
 
 -(IBAction)chooseLayout:(id)sender {
@@ -427,7 +452,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 }
 
 -(IBAction)speak:(id)sender {
-    [self.speechSynth[self.currentLayoutID] startSpeakingString:self.announceText.stringValue];
+    [self speakText:self.announceText.stringValue forLayoutID:self.currentLayoutID];
 }
 
 -(void)setValues {
@@ -435,9 +460,13 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 
     NSString *voiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
     if( voiceID != nil ) {
-        NSDictionary *voiceProperties = [NSSpeechSynthesizer attributesForVoice:voiceID];
-        NSString *voiceName = voiceProperties[NSVoiceName];
-        self.voiceName.stringValue = voiceName;
+        AVSpeechSynthesisVoice *voice = [self voiceForIdentifier:voiceID];
+        if( voice != nil ) {
+            self.voiceName.stringValue = voice.name;
+        }
+        else {
+            self.voiceName.stringValue = @"";
+        }
     }
     else {
         self.voiceName.stringValue = @"";
@@ -456,17 +485,17 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.announceText.stringValue=announce;
     
     if( self.settings[@"nsbeep"] != nil ) {
-        [self.flashScreenOnChange setState:NSOnState];
+        [self.flashScreenOnChange setState:NSControlStateValueOn];
     }
     else {
-        [self.flashScreenOnChange setState:NSOffState];
+        [self.flashScreenOnChange setState:NSControlStateValueOff];
     }
     
     if( self.settings[@"splash"] != nil ) {
-        [self.showSplashScreen setState:NSOnState];
+        [self.showSplashScreen setState:NSControlStateValueOn];
     }
     else {
-        [self.showSplashScreen setState:NSOffState];
+        [self.showSplashScreen setState:NSControlStateValueOff];
     }
     
     NSString *speechVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", self.currentLayoutID]];
@@ -481,20 +510,16 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 -(void)updateEnvironment {
     self.speechSynth = [NSMutableDictionary dictionaryWithCapacity:10];
     self.sounds = [NSMutableDictionary dictionaryWithCapacity:10];
-    
+
     CFArrayRef inputSourcesList = TISCreateInputSourceList(NULL, false);
     CFIndex inputSourcesCount = CFArrayGetCount(inputSourcesList);
-    
+
     self.listOfLayouts = [[NSMenu alloc] init];
     for( int i=0; i < inputSourcesCount; i++ ) {
         NSString *inputSourceID = (__bridge NSString*)TISGetInputSourceProperty((TISInputSourceRef)CFArrayGetValueAtIndex(inputSourcesList, i),kTISPropertyInputSourceID);
         NSString *voiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", inputSourceID]];
         if( voiceID != nil ) {
-            NSSpeechSynthesizer *synth =[[NSSpeechSynthesizer alloc] initWithVoice:voiceID];
-            NSString *speechVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", inputSourceID]];
-            double vol = valueOr(speechVolString,50)/100.0;
-            [synth setVolume:vol];
-            self.speechSynth[inputSourceID]=synth;
+            self.speechSynth[inputSourceID] = [[AVSpeechSynthesizer alloc] init];
         }
         NSString *keyClickName = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", inputSourceID]];
         if( keyClickName != nil ) {
@@ -508,6 +533,30 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
             [self.sounds[inputSourceID] setVolume:vol];
         }
     }
+}
+
+- (AVSpeechSynthesisVoice *)voiceForIdentifier:(NSString *)identifier {
+    if( identifier == nil ) {
+        return nil;
+    }
+    return [AVSpeechSynthesisVoice voiceWithIdentifier:identifier];
+}
+
+- (void)speakText:(NSString *)text forLayoutID:(NSString *)layoutID {
+    AVSpeechSynthesizer *synth = self.speechSynth[layoutID];
+    if( synth == nil ) {
+        return;
+    }
+
+    NSString *voiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", layoutID]];
+    NSString *speechVolString = self.settings[[NSString stringWithFormat:@"layouts.%@.announceVol", layoutID]];
+
+    AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:text];
+    utterance.voice = [self voiceForIdentifier:voiceID];
+    utterance.volume = valueOr(speechVolString,50)/100.0;
+
+    [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+    [synth speakUtterance:utterance];
 }
 
 - (void)quitApp:(id)sender {
@@ -599,7 +648,7 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 
 - (void)updateAutostartState {
     BOOL inLoginItems = [self isInLoginItems];
-    [self.autostart setState:(inLoginItems ? NSOnState : NSOffState)];
+    [self.autostart setState:(inLoginItems ? NSControlStateValueOn : NSControlStateValueOff)];
 }
 
 -(void)eventOccured:(NSEvent*)event {
@@ -701,8 +750,8 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         
         [self performSelector:@selector(startKeylogger) withObject:nil afterDelay:3.5];
         
-        for( NSSpeechSynthesizer *synth in self.speechSynth ) {
-            [self.speechSynth[synth] startSpeakingString:NSLocalizedString(@"Key Say", @"")];
+        for( NSString *layoutID in self.speechSynth ) {
+            [self speakText:NSLocalizedString(@"Key Say", @"") forLayoutID:layoutID];
         }
     } else {
         [self performSelector:@selector(startKeylogger) withObject:nil afterDelay:3.5];
