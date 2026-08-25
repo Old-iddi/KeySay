@@ -356,9 +356,10 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
         
         NSString *language = voice.language;
         NSLocale *currentLocale = [NSLocale currentLocale];
-        NSString *langName = [currentLocale localizedStringForLanguageCode:language];
-     
-        voiceName = [[voiceName stringByAppendingString:@" - "] stringByAppendingString:langName];
+        //NSString *langName = [currentLocale localizedStringForLanguageCode:language];
+        NSString *langName = [currentLocale localizedStringForLocaleIdentifier:language];
+        
+        voiceName = [NSString stringWithFormat:@"%@ - %@", voiceName, langName];
         
         NSMenuItem *settingsItem = [[NSMenuItem alloc] initWithTitle:voiceName
                                                               action:@selector(selectVoice:)
@@ -383,9 +384,6 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
 
     NSMenuItem *sourceMenuItem = (NSMenuItem*)sender;
     if( sourceMenuItem.representedObject != nil ) {
-        AVSpeechSynthesisVoice *voice = [self voiceForIdentifier:(NSString*)sourceMenuItem.representedObject];
-        NSString *voiceName = voice.name;
-        self.voiceName.stringValue = voiceName;
         self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]]=(NSString*)sourceMenuItem.representedObject;
     }
     else {
@@ -459,19 +457,19 @@ void theKeyboardChanged(CFNotificationCenterRef center, void *observer, CFString
     self.currentLayout.stringValue = self.currentLayoutName;
 
     NSString *voiceID = self.settings[[NSString stringWithFormat:@"layouts.%@.voiceID", self.currentLayoutID]];
-    if( voiceID != nil ) {
-        AVSpeechSynthesisVoice *voice = [self voiceForIdentifier:voiceID];
-        if( voice != nil ) {
-            self.voiceName.stringValue = voice.name;
-        }
-        else {
-            self.voiceName.stringValue = @"";
-        }
+    AVSpeechSynthesisVoice *voice = [self voiceForIdentifier:voiceID];
+    if( voice != nil ) {
+        NSString *voiceName = voice.name;
+        NSString *language = voice.language;
+        NSLocale *currentLocale = [NSLocale currentLocale];
+        NSString *langName = [currentLocale localizedStringForLocaleIdentifier:language];
+        voiceName = [NSString stringWithFormat:@"%@ - %@", voiceName, langName];
+        self.voiceName.stringValue = voiceName;
     }
     else {
         self.voiceName.stringValue = @"";
     }
-    
+
     NSString *keyClickName = self.settings[[NSString stringWithFormat:@"layouts.%@.keyClickSound", self.currentLayoutID]];
     if( keyClickName != nil ) {
         self.keyClick.stringValue = [keyClickName lastPathComponent];
